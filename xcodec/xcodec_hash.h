@@ -23,112 +23,118 @@
  * SUCH DAMAGE.
  */
 
-#ifndef XCODEC_XCODEC_HASH_H
-#define XCODEC_XCODEC_HASH_H
+#ifndef	XCODEC_XCODEC_HASH_H
+#define	XCODEC_XCODEC_HASH_H
 
 #include <strings.h>
 
 class XCodecHash {
-    struct RollingHash {
-        uint32_t sum1_;                          /* Really <16-bit.  */
-        uint32_t sum2_;                          /* Really <32-bit.  */
-        uint32_t buffer_[XCODEC_SEGMENT_LENGTH]; /* Really >8-bit.  */
+	struct RollingHash {
+		uint32_t sum1_;					/* Really <16-bit.  */
+		uint32_t sum2_;					/* Really <32-bit.  */
+		uint32_t buffer_[XCODEC_SEGMENT_LENGTH];	/* Really >8-bit.  */
 
-        RollingHash(void)
-            : sum1_(0),
-              sum2_(0),
-              buffer_() {}
+		RollingHash(void)
+		: sum1_(0),
+		  sum2_(0),
+		  buffer_()
+		{ }
 
-        void add(uint32_t ch, unsigned start) {
-            buffer_[start] = ch;
+		void add(uint32_t ch, unsigned start)
+		{
+			buffer_[start] = ch;
 
-            sum1_ += ch;
-            sum2_ += sum1_;
-        }
+			sum1_ += ch;
+			sum2_ += sum1_;
+		}
 
-        void reset(void) {
-            sum1_ = 0;
-            sum2_ = 0;
-        }
+		void reset(void)
+		{
+			sum1_ = 0;
+			sum2_ = 0;
+		}
 
-        void roll(uint32_t ch, unsigned start) {
-            uint32_t dead;
+		void roll(uint32_t ch, unsigned start)
+		{
+			uint32_t dead;
 
-            dead = buffer_[start];
+			dead = buffer_[start];
 
-            sum1_ -= dead;
-            sum2_ -= dead * XCODEC_SEGMENT_LENGTH;
+			sum1_ -= dead;
+			sum2_ -= dead * XCODEC_SEGMENT_LENGTH;
 
-            buffer_[start] = ch;
+			buffer_[start] = ch;
 
-            sum1_ += ch;
-            sum2_ += sum1_;
-        }
-    };
+			sum1_ += ch;
+			sum2_ += sum1_;
+		}
+	};
 
-    RollingHash bytes_;
-    RollingHash bits_;
-    unsigned start_;
+	RollingHash bytes_;
+	RollingHash bits_;
+	unsigned start_;
 #ifndef NDEBUG
-    unsigned length_;
+	unsigned length_;
 #endif
 
 public:
-    XCodecHash(void)
-        : bytes_(),
-          bits_(),
-          start_(0)
+	XCodecHash(void)
+	: bytes_(),
+	  bits_(),
+	  start_(0)
 #ifndef NDEBUG
-          ,
-          length_(0)
+	, length_(0)
 #endif
-    {
-    }
+	{ }
 
-    ~XCodecHash() {}
+	~XCodecHash()
+	{ }
 
-    void add(uint8_t ch) {
-        unsigned bit = ffs(ch);
-        unsigned word = (unsigned) ch + 1;
-
-#ifndef NDEBUG
-        ASSERT("/xcodec/hash", length_ < XCODEC_SEGMENT_LENGTH);
-#endif
-
-        bytes_.add(word, start_);
-        bits_.add(bit, start_);
+	void add(uint8_t ch)
+	{
+		unsigned bit = ffs(ch);
+		unsigned word = (unsigned)ch + 1;
 
 #ifndef NDEBUG
-        length_++;
+		ASSERT("/xcodec/hash", length_ < XCODEC_SEGMENT_LENGTH);
 #endif
-        start_ = (start_ + 1) % XCODEC_SEGMENT_LENGTH;
-    }
 
-    void reset(void) {
-        bytes_.reset();
-        bits_.reset();
+		bytes_.add(word, start_);
+		bits_.add(bit, start_);
 
 #ifndef NDEBUG
-        length_ = 0;
+		length_++;
 #endif
-        start_ = 0;
-    }
+		start_ = (start_ + 1) % XCODEC_SEGMENT_LENGTH;
+	}
 
-    void roll(uint8_t ch) {
-        unsigned bit = ffs(ch);
-        unsigned word = (unsigned) ch + 1;
+	void reset(void)
+	{
+		bytes_.reset();
+		bits_.reset();
 
 #ifndef NDEBUG
-        ASSERT("/xcodec/hash", length_ == XCODEC_SEGMENT_LENGTH);
+		length_ = 0;
+#endif
+		start_ = 0;
+	}
+
+	void roll(uint8_t ch)
+	{
+		unsigned bit = ffs(ch);
+		unsigned word = (unsigned)ch + 1;
+
+#ifndef NDEBUG
+		ASSERT("/xcodec/hash", length_ == XCODEC_SEGMENT_LENGTH);
 #endif
 
-        bytes_.roll(word, start_);
-        bits_.roll(bit, start_);
+		bytes_.roll(word, start_);
+		bits_.roll(bit, start_);
 
-        start_ = (start_ + 1) % XCODEC_SEGMENT_LENGTH;
-    }
+		start_ = (start_ + 1) % XCODEC_SEGMENT_LENGTH;
+	}
 
-    /*
+	/*
 	 * XXX
 	 * Need to write a compression function for this; get rid of the
 	 * completely non-entropic bits, anyway, and try to mix the others.
@@ -146,24 +152,26 @@ public:
 	 * hocus pocus computer science.  Need to think more clearly and
 	 * fully about it.
 	 */
-    uint64_t mix(void) const {
+	uint64_t mix(void) const
+	{
 #ifndef NDEBUG
-        ASSERT("/xcodec/hash", length_ == XCODEC_SEGMENT_LENGTH);
+		ASSERT("/xcodec/hash", length_ == XCODEC_SEGMENT_LENGTH);
 #endif
 
-        uint64_t bits_hash = (bits_.sum1_ << 16) + bits_.sum2_;
-        uint64_t bytes_hash = (bytes_.sum1_ << 20) + bytes_.sum2_;
-        return ((bits_hash << 36) + bytes_hash);
-    }
+		uint64_t bits_hash = (bits_.sum1_ << 16) + bits_.sum2_;
+		uint64_t bytes_hash = (bytes_.sum1_ << 20) + bytes_.sum2_;
+		return ((bits_hash << 36) + bytes_hash);
+	}
 
-    static uint64_t hash(const uint8_t *data) {
-        XCodecHash xchash;
-        unsigned i;
+	static uint64_t hash(const uint8_t *data)
+	{
+		XCodecHash xchash;
+		unsigned i;
 
-        for (i = 0; i < XCODEC_SEGMENT_LENGTH; i++)
-            xchash.add(*data++);
-        return (xchash.mix());
-    }
+		for (i = 0; i < XCODEC_SEGMENT_LENGTH; i++)
+			xchash.add(*data++);
+		return (xchash.mix());
+	}
 };
 
 #endif /* !XCODEC_XCODEC_HASH_H */

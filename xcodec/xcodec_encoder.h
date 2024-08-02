@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef XCODEC_XCODEC_ENCODER_H
-#define XCODEC_XCODEC_ENCODER_H
+#ifndef	XCODEC_XCODEC_ENCODER_H
+#define	XCODEC_XCODEC_ENCODER_H
 
 #include <xcodec/xcodec_hash.h>
 
@@ -40,25 +40,26 @@
 
 class XCodecCache;
 
-class XCodecEncoder {
-    LogHandle log_;
-    XCodecCache *cache_;
-    Buffer source_;
-    XCodecHash xcodec_hash_;
-    int candidate_start_;
-    uint64_t candidate_symbol_;
+class XCodecEncoder 
+{
+	LogHandle log_;
+	XCodecCache* cache_;
+	Buffer source_;
+	XCodecHash xcodec_hash_;
+	int candidate_start_;
+	uint64_t candidate_symbol_;
 
 public:
-    XCodecEncoder(XCodecCache *);
-    ~XCodecEncoder();
+	XCodecEncoder(XCodecCache*);
+	~XCodecEncoder();
 
-    void encode(Buffer &, Buffer &);
-    bool flush(Buffer &);
-
+	void encode (Buffer&, Buffer&);
+	bool flush (Buffer&);
+	
 private:
-    void encode_declaration(Buffer &, Buffer &, unsigned, uint64_t);
-    void encode_escape(Buffer &, Buffer &, unsigned);
-    bool encode_reference(Buffer &, Buffer &, unsigned, uint64_t, Buffer &);
+	void encode_declaration (Buffer&, Buffer&, unsigned, uint64_t);
+	void encode_escape (Buffer&, Buffer&, unsigned);
+	bool encode_reference (Buffer&, Buffer&, unsigned, uint64_t, Buffer&);
 };
 
 #endif /* !XCODEC_XCODEC_ENCODER_H */

@@ -40,38 +40,40 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
-    class InstanceEVP : public CryptoHash::Instance {
-        LogHandle log_;
-        const EVP_MD *algorithm_;
+	class InstanceEVP : public CryptoHash::Instance {
+		LogHandle log_;
+		const EVP_MD *algorithm_;
+	public:
+		InstanceEVP(const EVP_MD *algorithm)
+		: log_("/crypto/hash/instance/openssl"),
+		  algorithm_(algorithm)
+		{ }
 
-    public:
-        InstanceEVP(const EVP_MD *algorithm)
-            : log_("/crypto/hash/instance/openssl"),
-              algorithm_(algorithm) {}
+		~InstanceEVP()
+		{ }
 
-        ~InstanceEVP() {}
-
-        virtual bool hash(Buffer *out, const Buffer *in) {
-            /*
+		virtual bool hash(Buffer *out, const Buffer *in)
+		{
+			/*
 			 * We process a single, large, linear byte buffer here rather
 			 * than going a BufferSegment at a time, even though the byte
 			 * buffer is less efficient than some alternatives, because
 			 * there are padding and buffering implications if each
 			 * BufferSegment's length is not modular to the block size.
 			 */
-            uint8_t indata[in->length()];
-            in->copyout(indata, sizeof indata);
+			uint8_t indata[in->length()];
+			in->copyout(indata, sizeof indata);
 
-            uint8_t macdata[EVP_MD_size(algorithm_)];
-            unsigned maclen;
-            if (!EVP_Digest(indata, sizeof indata, macdata, &maclen, algorithm_, NULL))
-                return (false);
-            ASSERT(log_, maclen == sizeof macdata);
-            out->append(macdata, maclen);
-            return (true);
-        }
+			uint8_t macdata[EVP_MD_size(algorithm_)];
+			unsigned maclen;
+			if (!EVP_Digest(indata, sizeof indata, macdata, &maclen, algorithm_, NULL))
+				return (false);
+			ASSERT(log_, maclen == sizeof macdata);
+			out->append(macdata, maclen);
+			return (true);
+		}
 
-        /*
+		/*
 		Action *submit(Buffer *in, EventCallback *cb)
 		{
 			Buffer out;
@@ -85,41 +87,44 @@ namespace {
 			return (cb->schedule());
 		}
 		*/
-    };
+	};
 
-    class MethodOpenSSL : public CryptoHash::Method {
-        LogHandle log_;
-        FactoryMap<CryptoHash::Algorithm, CryptoHash::Instance> algorithm_map_;
+	class MethodOpenSSL : public CryptoHash::Method {
+		LogHandle log_;
+		FactoryMap<CryptoHash::Algorithm, CryptoHash::Instance> algorithm_map_;
+	public:
+		MethodOpenSSL(void)
+		: CryptoHash::Method("OpenSSL"),
+		  log_("/crypto/hash/openssl"),
+		  algorithm_map_()
+		{
+			OpenSSL_add_all_algorithms();
 
-    public:
-        MethodOpenSSL(void)
-            : CryptoHash::Method("OpenSSL"),
-              log_("/crypto/hash/openssl"),
-              algorithm_map_() {
-            OpenSSL_add_all_algorithms();
+			factory<InstanceEVP> evp_factory;
+			algorithm_map_.enter(CryptoHash::MD5, evp_factory(EVP_md5()));
+			algorithm_map_.enter(CryptoHash::SHA1, evp_factory(EVP_sha1()));
+			algorithm_map_.enter(CryptoHash::SHA256, evp_factory(EVP_sha256()));
+			algorithm_map_.enter(CryptoHash::SHA512, evp_factory(EVP_sha512()));
+			algorithm_map_.enter(CryptoHash::RIPEMD160, evp_factory(EVP_ripemd160()));
 
-            factory<InstanceEVP> evp_factory;
-            algorithm_map_.enter(CryptoHash::MD5, evp_factory(EVP_md5()));
-            algorithm_map_.enter(CryptoHash::SHA1, evp_factory(EVP_sha1()));
-            algorithm_map_.enter(CryptoHash::SHA256, evp_factory(EVP_sha256()));
-            algorithm_map_.enter(CryptoHash::SHA512, evp_factory(EVP_sha512()));
-            algorithm_map_.enter(CryptoHash::RIPEMD160, evp_factory(EVP_ripemd160()));
+			/* XXX Register.  */
+		}
 
-            /* XXX Register.  */
-        }
+		~MethodOpenSSL()
+		{
+			/* XXX Unregister.  */
+		}
 
-        ~MethodOpenSSL() {
-            /* XXX Unregister.  */
-        }
+		std::set<CryptoHash::Algorithm> algorithms(void) const
+		{
+			return (algorithm_map_.keys());
+		}
 
-        std::set<CryptoHash::Algorithm> algorithms(void) const {
-            return (algorithm_map_.keys());
-        }
+		CryptoHash::Instance *instance(CryptoHash::Algorithm algorithm) const
+		{
+			return (algorithm_map_.create(algorithm));
+		}
+	};
 
-        CryptoHash::Instance *instance(CryptoHash::Algorithm algorithm) const {
-            return (algorithm_map_.create(algorithm));
-        }
-    };
-
-    static MethodOpenSSL crypto_hash_method_openssl;
-}// namespace
+	static MethodOpenSSL crypto_hash_method_openssl;
+}

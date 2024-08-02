@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef COMMON_FACTORY_H
-#define COMMON_FACTORY_H
+#ifndef	COMMON_FACTORY_H
+#define	COMMON_FACTORY_H
 
 #include <map>
 #include <set>
@@ -32,124 +32,140 @@
 template<class C>
 class Factory {
 public:
-    Factory(void) {}
+	Factory(void)
+	{ }
 
-    virtual ~Factory() {}
+	virtual ~Factory()
+	{ }
 
-    virtual C *create(void) const = 0;
+	virtual C *create(void) const = 0;
 };
 
 template<class B, class C>
 class ConstructorFactory : public Factory<B> {
 public:
-    ConstructorFactory(void) {}
+	ConstructorFactory(void)
+	{ }
 
-    ~ConstructorFactory() {}
+	~ConstructorFactory()
+	{ }
 
-    B *create(void) const {
-        return (new C());
-    }
+	B *create(void) const
+	{
+		return (new C());
+	}
 };
 
 template<class B, class C, typename A>
 class ConstructorArgFactory : public Factory<B> {
-    A a_;
-
+	A a_;
 public:
-    ConstructorArgFactory(A a)
-        : a_(a) {}
+	ConstructorArgFactory(A a)
+	: a_(a)
+	{ }
 
-    ~ConstructorArgFactory() {}
+	~ConstructorArgFactory()
+	{ }
 
-    B *create(void) const {
-        return (new C(a_));
-    }
+	B *create(void) const
+	{
+		return (new C(a_));
+	}
 };
 
 template<class B, class C>
 class SubclassFactory : public Factory<B> {
-    Factory<C> *factory_;
-
+	Factory<C> *factory_;
 public:
-    SubclassFactory(Factory<C> *factory)
-        : factory_(factory) {}
+	SubclassFactory(Factory<C> *factory)
+	: factory_(factory)
+	{ }
 
-    ~SubclassFactory() {
-        delete factory_;
-        factory_ = NULL;
-    }
+	~SubclassFactory()
+	{
+		delete factory_;
+		factory_ = NULL;
+	}
 
-    B *create(void) const {
-        return (factory_->create());
-    }
+	B *create(void) const
+	{
+		return (factory_->create());
+	}
 };
 
 template<class B, class C = B>
 struct factory {
-    Factory<B> *operator()(void) const {
-        return (new ConstructorFactory<B, C>);
-    }
+	Factory<B> *operator() (void) const
+	{
+		return (new ConstructorFactory<B, C>);
+	}
 
-    template<typename T>
-    Factory<B> *operator()(T arg) const {
-        return (new ConstructorArgFactory<B, C, T>(arg));
-    }
+	template<typename T>
+	Factory<B> *operator() (T arg) const
+	{
+		return (new ConstructorArgFactory<B, C, T>(arg));
+	}
 };
 
 template<typename K, typename C>
 class FactoryMap {
-    typedef std::map<K, Factory<C> *> map_type;
+	typedef std::map<K, Factory<C> *> map_type;
 
-    map_type map_;
-
+	map_type map_;
 public:
-    FactoryMap(void)
-        : map_() {}
+	FactoryMap(void)
+	: map_()
+	{ }
 
-    ~FactoryMap() {
-        typename map_type::iterator it;
+	~FactoryMap()
+	{
+		typename map_type::iterator it;
 
-        while ((it = map_.begin()) != map_.end()) {
-            delete it->second;
-            map_.erase(it);
-        }
-    }
+		while ((it = map_.begin()) != map_.end()) {
+			delete it->second;
+			map_.erase(it);
+		}
+	}
 
-    C *create(const K &key) const {
-        typename map_type::const_iterator it;
+	C *create(const K& key) const
+	{
+		typename map_type::const_iterator it;
 
-        it = map_.find(key);
-        if (it == map_.end())
-            return (NULL);
-        return (it->second->create());
-    }
+		it = map_.find(key);
+		if (it == map_.end())
+			return (NULL);
+		return (it->second->create());
+	}
 
-    void enter(const K &key, Factory<C> *factory) {
-        typename map_type::iterator it;
+	void enter(const K& key, Factory<C> *factory)
+	{
+		typename map_type::iterator it;
 
-        it = map_.find(key);
-        if (it != map_.end()) {
-            delete it->second;
-            map_.erase(it);
-        }
+		it = map_.find(key);
+		if (it != map_.end()) {
+			delete it->second;
+			map_.erase(it);
+		}
 
-        map_[key] = factory;
-    }
+		map_[key] = factory;
+	}
 
-    template<typename S>
-    void enter(const K &key, Factory<S> *factory) {
-        enter(key, new SubclassFactory<C, S>(factory));
-    }
+	template<typename S>
+	void enter(const K& key, Factory<S> *factory)
+	{
+		enter(key, new SubclassFactory<C, S>(factory));
+	}
 
-    std::set<K> keys(void) const {
-        typename map_type::const_iterator it;
-        std::set<K> key_set;
+	std::set<K> keys(void) const
+	{
+		typename map_type::const_iterator it;
+		std::set<K> key_set;
 
-        for (it = map_.begin(); it != map_.end(); ++it)
-            key_set.insert(it->first);
+		for (it = map_.begin(); it != map_.end(); ++it)
+			key_set.insert(it->first);
 
-        return (key_set);
-    }
+		return (key_set);
+	}
 };
 
 #endif /* !COMMON_FACTORY_H */

@@ -23,12 +23,12 @@
  * SUCH DAMAGE.
  */
 
-#ifndef COMMON_UUID_UUID_H
-#define COMMON_UUID_UUID_H
+#ifndef	COMMON_UUID_UUID_H
+#define	COMMON_UUID_UUID_H
 
-#include <common/buffer.h>
-#include <ostream>
 #include <string.h>
+#include <ostream>
+#include <common/buffer.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -46,46 +46,41 @@
 #endif
 
 #ifdef USE_LIBUUID
-
 #include <uuid/uuid.h>
-
 #else
 #include <uuid.h>
 #endif
 
-#define UUID_STRING_SIZE (sizeof(uuid_t) * 2 + 4)
+#define UUID_STRING_SIZE  (sizeof (uuid_t) * 2 + 4)
 
-struct UUID {
-    uuid_t uuid_;
+struct UUID 
+{
+	uuid_t uuid_;
 
-    bool from_string(const uint8_t *str);
+	bool from_string (const uint8_t* str);
+	bool to_string (uint8_t* str) const;
+	bool from_file (std::string& path);
+	bool to_file (std::string& path) const;
+	bool decode (Buffer&);
+	bool encode (Buffer& buf) const;
+	void generate (void);
 
-    bool to_string(uint8_t *str) const;
-
-    bool from_file(std::string &path);
-
-    bool to_file(std::string &path) const;
-
-    bool decode(Buffer &);
-
-    bool encode(Buffer &buf) const;
-
-    void generate(void);
-
-    UUID() {
-        memset(&uuid_, 0, sizeof uuid_);
-    }
-
-    bool operator<(const UUID &b) const {
-        return (memcmp(&uuid_, &b.uuid_, sizeof uuid_) < 0);
-    }
-
-    bool is_valid() const {
-        uuid_t u;
-        return (memcmp(&uuid_, &u, sizeof uuid_) != 0);
-    }
+	UUID ()
+	{
+		memset (&uuid_, 0, sizeof uuid_);
+	}
+	
+	bool operator< (const UUID& b) const
+	{
+		return (memcmp (&uuid_, &b.uuid_, sizeof uuid_) < 0);
+	}
+	
+	bool is_valid () const
+	{
+		uuid_t u; return (memcmp (&uuid_, &u, sizeof uuid_) != 0);
+	}
 };
 
-std::ostream &operator<<(std::ostream &os, const UUID &uuid);
+std::ostream& operator<< (std::ostream& os, const UUID& uuid);
 
 #endif /* !COMMON_UUID_UUID_H */

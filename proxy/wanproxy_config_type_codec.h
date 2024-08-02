@@ -23,14 +23,14 @@
  * SUCH DAMAGE.
  */
 
-#ifndef PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_CODEC_H
-#define PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_CODEC_H
+#ifndef	PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_CODEC_H
+#define	PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_CODEC_H
 
 #include <config/config_type_enum.h>
 
 enum WANProxyConfigCodec {
-    WANProxyConfigCodecNone,
-    WANProxyConfigCodecXCodec
+	WANProxyConfigCodecNone,
+	WANProxyConfigCodecXCodec
 };
 
 typedef ConfigTypeEnum<WANProxyConfigCodec> WANProxyConfigTypeCodec;
@@ -38,8 +38,8 @@ typedef ConfigTypeEnum<WANProxyConfigCodec> WANProxyConfigTypeCodec;
 extern WANProxyConfigTypeCodec wanproxy_config_type_codec;
 
 enum WANProxyConfigCache {
-    WANProxyConfigCacheMemory,
-    WANProxyConfigCacheCOSS
+	WANProxyConfigCacheMemory,
+	WANProxyConfigCacheCOSS
 };
 
 typedef ConfigTypeEnum<WANProxyConfigCache> WANProxyConfigTypeCache;
@@ -47,3 +47,4 @@ typedef ConfigTypeEnum<WANProxyConfigCache> WANProxyConfigTypeCache;
 extern WANProxyConfigTypeCache wanproxy_config_type_cache;
 
 #endif /* !PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_CODEC_H */
+

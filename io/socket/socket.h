@@ -23,14 +23,14 @@
  * SUCH DAMAGE.
  */
 
-#ifndef IO_SOCKET_SOCKET_H
-#define IO_SOCKET_SOCKET_H
+#ifndef	IO_SOCKET_SOCKET_H
+#define	IO_SOCKET_SOCKET_H
 
 #include <event/action.h>
 #include <event/event_callback.h>
 #include <event/typed_pair_callback.h>
-#include <io/socket/socket_types.h>
 #include <io/stream_handle.h>
+#include <io/socket/socket_types.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -42,40 +42,34 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef class TypedPairCallback<Event, Socket *> SocketEventCallback;
+typedef class TypedPairCallback<Event, Socket*> SocketEventCallback;
 typedef class CallbackAction<Socket, SocketEventCallback> SocketEventAction;
 
-class Socket : public StreamHandle {
-    LogHandle log_;
-    int domain_;
-    int socktype_;
-    int protocol_;
-    SocketEventAction *accept_request_;
-    Action *accept_check_;
+class Socket : public StreamHandle 
+{
+	LogHandle log_;
+	int domain_;
+	int socktype_;
+	int protocol_;
+	SocketEventAction* accept_request_;
+	Action* accept_check_;
 
 private:
-    Socket(int, int, int, int);
-
+	Socket (int, int, int, int);
+	
 public:
-    Action *accept(SocketEventCallback *);
+	Action* accept (SocketEventCallback*);
+	void accept_complete (Event);
+	void accept_cancel ();
+	Action* connect (const std::string&, EventCallback*);
+	bool bind (const std::string&);
+	bool listen ();
+	bool shutdown (bool, bool);
 
-    void accept_complete(Event);
+	std::string getpeername () const;
+	std::string getsockname () const;
 
-    void accept_cancel();
-
-    Action *connect(const std::string &, EventCallback *);
-
-    bool bind(const std::string &);
-
-    bool listen();
-
-    bool shutdown(bool, bool);
-
-    std::string getpeername() const;
-
-    std::string getsockname() const;
-
-    static Socket *create(SocketAddressFamily, SocketType, const std::string & = "", const std::string & = "");
+	static Socket* create (SocketAddressFamily, SocketType, const std::string& = "", const std::string& = "");
 };
 
 #endif /* !IO_SOCKET_SOCKET_H */

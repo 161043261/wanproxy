@@ -23,9 +23,9 @@
  * SUCH DAMAGE.
  */
 
-#include "proxy_listener.h"
-#include "proxy_connector.h"
 #include <event/event_system.h>
+#include "proxy_connector.h"
+#include "proxy_listener.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -37,90 +37,101 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-ProxyListener::ProxyListener(const std::string &name,
-                             WANProxyCodec *local_codec,
-                             WANProxyCodec *remote_codec,
-                             SocketAddressFamily local_family,
-                             const std::string &local_address,
-                             SocketAddressFamily remote_family,
-                             const std::string &remote_address,
-                             bool cln, bool ssh)
-    : log_("/wanproxy/" + name + "/listener"),
-      name_(name),
-      local_codec_(local_codec),
-      remote_codec_(remote_codec),
-      local_family_(local_family),
-      local_address_(local_address),
-      remote_family_(remote_family),
-      remote_address_(remote_address),
-      is_cln_(cln),
-      is_ssh_(ssh),
-      accept_action_(0),
-      stop_action_(0) {
-    launch_service();
+ProxyListener::ProxyListener (const std::string& name,
+										WANProxyCodec* local_codec,
+										WANProxyCodec* remote_codec,
+										SocketAddressFamily local_family,
+										const std::string& local_address,
+										SocketAddressFamily remote_family,
+										const std::string& remote_address,
+										bool cln, bool ssh)
+ : log_("/wanproxy/" + name + "/listener"),
+   name_(name),
+   local_codec_(local_codec),
+   remote_codec_(remote_codec),
+   local_family_(local_family),
+   local_address_(local_address),
+   remote_family_(remote_family),
+   remote_address_(remote_address),
+	is_cln_(cln),
+	is_ssh_(ssh),
+   accept_action_(0),
+   stop_action_(0)
+{
+	launch_service ();
 }
 
-ProxyListener::~ProxyListener() {
-    if (accept_action_)
-        accept_action_->cancel();
-    if (stop_action_)
-        stop_action_->cancel();
-    close();
+ProxyListener::~ProxyListener ()
+{ 
+	if (accept_action_)
+		accept_action_->cancel ();
+	if (stop_action_)
+		stop_action_->cancel ();
+	close ();
 }
 
-void ProxyListener::launch_service() {
-    if (listen(local_family_, local_address_)) {
-        accept_action_ = accept(callback(this, &ProxyListener::accept_complete));
-        INFO(log_) << "Listening on: " << getsockname();
-    } else {
-        HALT(log_) << "Unable to create listener.";
-    }
+void ProxyListener::launch_service ()
+{
+	if (listen (local_family_, local_address_))
+	{
+		accept_action_ = accept (callback (this, &ProxyListener::accept_complete));
+		INFO(log_) << "Listening on: " << getsockname ();
+	}
+	else
+	{
+		HALT(log_) << "Unable to create listener.";
+	}
 }
 
-void ProxyListener::refresh(const std::string &name,
-                            WANProxyCodec *local_codec,
-                            WANProxyCodec *remote_codec,
-                            SocketAddressFamily local_family,
-                            const std::string &local_address,
-                            SocketAddressFamily remote_family,
-                            const std::string &remote_address,
-                            bool cln, bool ssh) {
-    bool relaunch = (local_address != local_address_);
-    bool redirect = (remote_address != remote_address_);
-
-    name_ = name;
-    local_codec_ = local_codec;
-    remote_codec_ = remote_codec;
-    local_family_ = local_family;
-    local_address_ = local_address;
-    remote_family_ = remote_family;
-    remote_address_ = remote_address;
-    is_cln_ = cln;
-    is_ssh_ = ssh;
-
-    if (relaunch) {
-        if (accept_action_)
-            accept_action_->cancel(), accept_action_ = 0;
-        launch_service();
-    }
-
-    if (redirect) {
-        INFO(log_) << "Peer address: " << remote_address_;
-    }
+void ProxyListener::refresh  (const std::string& name,
+										WANProxyCodec* local_codec,
+										WANProxyCodec* remote_codec,
+										SocketAddressFamily local_family,
+										const std::string& local_address,
+										SocketAddressFamily remote_family,
+										const std::string& remote_address,
+										bool cln, bool ssh)
+{
+	bool relaunch = (local_address != local_address_);
+	bool redirect = (remote_address != remote_address_);
+	
+   name_ = name;
+   local_codec_ = local_codec;
+   remote_codec_ = remote_codec;
+   local_family_ = local_family;
+   local_address_ = local_address;
+   remote_family_ = remote_family;
+   remote_address_ = remote_address;
+	is_cln_ = cln;
+	is_ssh_ = ssh;
+	
+	if (relaunch)
+	{
+		if (accept_action_)
+			accept_action_->cancel (), accept_action_ = 0;
+		launch_service ();
+	}
+	
+	if (redirect)
+	{
+		INFO(log_) << "Peer address: " << remote_address_;
+	}
 }
 
-void ProxyListener::accept_complete(Event e, Socket *sck) {
-    switch (e.type_) {
-        case Event::Done:
-            DEBUG(log_) << "Accepted client: " << sck->getpeername();
-            new ProxyConnector(name_, local_codec_, remote_codec_, sck, remote_family_, remote_address_, is_cln_,
-                               is_ssh_);
-            break;
-        case Event::Error:
-            ERROR(log_) << "Accept error: " << e;
-            break;
-        default:
-            ERROR(log_) << "Unexpected event: " << e;
-            break;
-    }
+void ProxyListener::accept_complete (Event e, Socket* sck)
+{
+	switch (e.type_) 
+	{
+	case Event::Done:
+		DEBUG(log_) << "Accepted client: " << sck->getpeername ();
+		new ProxyConnector (name_, local_codec_, remote_codec_, sck, remote_family_, remote_address_, is_cln_, is_ssh_);
+		break;
+	case Event::Error:
+		ERROR(log_) << "Accept error: " << e;
+		break;
+	default:
+		ERROR(log_) << "Unexpected event: " << e;
+		break;
+	}
 }
+

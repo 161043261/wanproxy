@@ -40,21 +40,22 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
-    typedef int(RAND_func)(unsigned char *, int);
+	typedef	int (RAND_func)(unsigned char *, int);
 }
 
 class CryptoRandomSessionRAND : public CryptoRandomSession {
-    LogHandle log_;
-    RAND_func *func_;
-
+	LogHandle log_;
+	RAND_func *func_;
 public:
-    CryptoRandomSessionRAND(RAND_func *func)
-        : log_("/crypto/random/session/openssl"),
-          func_(func) {}
+	CryptoRandomSessionRAND(RAND_func *func)
+	: log_("/crypto/random/session/openssl"),
+	  func_(func)
+	{ }
 
-    ~CryptoRandomSessionRAND() {}
+	~CryptoRandomSessionRAND()
+	{ }
 
-    /*
+	/*
 	Action *generate(size_t len, EventCallback *cb)
 	{
 		ASSERT(log_, len != 0);
@@ -72,55 +73,58 @@ public:
 };
 
 class CryptoRandomMethodOpenSSL : public CryptoRandomMethod {
-    LogHandle log_;
-    std::map<CryptoRandomType, RAND_func *> func_map_;
-
+	LogHandle log_;
+	std::map<CryptoRandomType, RAND_func *> func_map_;
 public:
-    CryptoRandomMethodOpenSSL(void)
-        : log_("/crypto/random/openssl"),
-          func_map_() {
-        OpenSSL_add_all_algorithms();
+	CryptoRandomMethodOpenSSL(void)
+	: log_("/crypto/random/openssl"),
+	  func_map_()
+	{
+		OpenSSL_add_all_algorithms();
 
-        func_map_[CryptoTypeRNG] = RAND_bytes;
-        func_map_[CryptoTypePRNG] = RAND_pseudo_bytes;
+		func_map_[CryptoTypeRNG] = RAND_bytes;
+		func_map_[CryptoTypePRNG] = RAND_pseudo_bytes;
 
-        /* XXX Register.  */
-    }
+		/* XXX Register.  */
+	}
 
-    ~CryptoRandomMethodOpenSSL() {
-        /* XXX Unregister.  */
-    }
+	~CryptoRandomMethodOpenSSL()
+	{
+		/* XXX Unregister.  */
+	}
 
-    /*
+	/*
 	 * Synchronous randomness generation.  May not succeed.
 	 */
-    bool generate(CryptoRandomType func, size_t len, Buffer *out) const {
-        std::map<CryptoRandomType, RAND_func *>::const_iterator it;
+	bool generate(CryptoRandomType func, size_t len, Buffer *out) const
+	{
+		std::map<CryptoRandomType, RAND_func *>::const_iterator it;
 
-        it = func_map_.find(func);
-        if (it == func_map_.end())
-            return (false);
+		it = func_map_.find(func);
+		if (it == func_map_.end())
+			return (false);
 
-        uint8_t bytes[len];
-        int rv = it->second(bytes, sizeof bytes);
-        if (rv == 0)
-            return (false);
+		uint8_t bytes[len];
+		int rv = it->second(bytes, sizeof bytes);
+		if (rv == 0)
+			return (false);
 
-        out->append(bytes, sizeof bytes);
-        return (true);
-    }
+		out->append(bytes, sizeof bytes);
+		return (true);
+	}
 
-    CryptoRandomSession *session(CryptoRandomType func) const {
-        std::map<CryptoRandomType, RAND_func *>::const_iterator it;
+	CryptoRandomSession *session(CryptoRandomType func) const
+	{
+		std::map<CryptoRandomType, RAND_func *>::const_iterator it;
 
-        it = func_map_.find(func);
-        if (it != func_map_.end())
-            return (new CryptoRandomSessionRAND(it->second));
-        return (NULL);
-    }
+		it = func_map_.find(func);
+		if (it != func_map_.end())
+			return (new CryptoRandomSessionRAND(it->second));
+		return (NULL);
+	}
 };
 
 namespace {
-    static CryptoRandomMethodOpenSSL crypto_random_method_openssl;
+	static CryptoRandomMethodOpenSSL crypto_random_method_openssl;
 }
 const CryptoRandomMethod *CryptoRandomMethod::default_method = &crypto_random_method_openssl; /* XXX */

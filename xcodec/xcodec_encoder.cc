@@ -41,13 +41,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 XCodecEncoder::XCodecEncoder(XCodecCache *cache)
-    : log_("/xcodec/encoder"),
-      cache_(cache) {
-    candidate_start_ = -1;
-    candidate_symbol_ = 0;
+: log_("/xcodec/encoder"),
+  cache_(cache)
+{
+	  candidate_start_ = -1;
+	  candidate_symbol_ = 0;
 }
 
-XCodecEncoder::~XCodecEncoder() {}
+XCodecEncoder::~XCodecEncoder()
+{ }
 
 /*
  * This takes a view of a data stream and turns it into a series of references
@@ -55,179 +57,204 @@ XCodecEncoder::~XCodecEncoder() {}
  * escaped.
  */
 
-void XCodecEncoder::encode(Buffer &output, Buffer &input) {
-    int off = source_.length();
-    Buffer old;
+void XCodecEncoder::encode (Buffer& output, Buffer& input)
+{
+	int off = source_.length ();
+	Buffer old;
+	
+	source_.append (input);
 
-    source_.append(input);
-
-    for (Buffer::SegmentIterator it = input.segments(); !it.end(); it.next()) {
-        const BufferSegment *seg = *it;
-        const uint8_t *p, *q = seg->end();
-
-        for (p = seg->data(); p < q; ++p) {
-            /*
+	for (Buffer::SegmentIterator it = input.segments (); ! it.end (); it.next ()) 
+	{
+		const BufferSegment* seg = *it;
+		const uint8_t *p, *q = seg->end ();
+		
+		for (p = seg->data (); p < q; ++p) 
+		{
+			/*
 			 * Add bytes to the hash until we have a complete hash.
 			 */
-            if (++off < XCODEC_SEGMENT_LENGTH)
-                xcodec_hash_.add(*p);
-            else {
-                if (off == XCODEC_SEGMENT_LENGTH)
-                    xcodec_hash_.add(*p);
-                else
-                    xcodec_hash_.roll(*p);
-
-                /*
+			if (++off < XCODEC_SEGMENT_LENGTH) 
+				xcodec_hash_.add (*p);
+			else
+			{
+				if (off == XCODEC_SEGMENT_LENGTH)
+					xcodec_hash_.add (*p);
+				else
+					xcodec_hash_.roll (*p);
+				
+				/*
 				 * And then mix the hash's internal state into a
 				 * uint64_t that we can use to refer to that data
 				 * and to look up possible past occurances of that
 				 * data in the XCodecCache.
 				 */
-                uint64_t hash = xcodec_hash_.mix();
+				uint64_t hash = xcodec_hash_.mix ();
 
-                /*
+				/*
 				 * If there is a pending candidate hash that wouldn't
 				 * overlap with the data that the rolling hash presently
 				 * covers, declare it now.
 				 */
-                if (candidate_start_ >= 0 && candidate_start_ + (XCODEC_SEGMENT_LENGTH * 2) <= off) {
-                    encode_declaration(output, source_, candidate_start_, candidate_symbol_);
-                    off -= (candidate_start_ + XCODEC_SEGMENT_LENGTH);
-                    candidate_start_ = -1;
-                }
+				if (candidate_start_ >= 0 && candidate_start_ + (XCODEC_SEGMENT_LENGTH * 2) <= off) 
+				{
+					encode_declaration (output, source_, candidate_start_, candidate_symbol_);
+					off -= (candidate_start_ + XCODEC_SEGMENT_LENGTH);
+					candidate_start_ = -1;
+				}
 
-                /*
+				/*
 				 * Now attempt to encode this hash as a reference if it
 				 * has been defined before.
 				 */
-
-                if (cache_->lookup(hash, old)) {
-                    /*
+				
+				if (cache_->lookup (hash, old))
+				{
+					/*
 					 * This segment already exists.  If it's
 					 * identical to this chunk of data, then that's
 					 * positively fantastic.
 					 */
-                    if (encode_reference(output, source_, off - XCODEC_SEGMENT_LENGTH, hash, old)) {
-                        /*
+					if (encode_reference (output, source_, off - XCODEC_SEGMENT_LENGTH, hash, old)) 
+					{
+						/*
 						 * We have output any data before this hash
 						 * in escaped form, so any candidate hash
 						 * before it is invalid now.
 						 */
-                        off = 0;
-                        xcodec_hash_.reset();
-                        candidate_start_ = -1;
-                    } else {
-                        /*
+						off = 0;
+						xcodec_hash_.reset();
+						candidate_start_ = -1;
+					}
+					else
+					{
+						/*
 						 * This hash isn't usable because it collides
 						 * with another, so keep looking for something
 						 * viable.
 						 */
-                        DEBUG(log_) << "Collision in first pass.";
-                    }
-
-                    old.clear();
-                } else {
-                    /*
+						DEBUG(log_) << "Collision in first pass.";
+					}
+					
+					old.clear ();
+				}
+				else
+				{
+					/*
 					 * Not defined before, it's a candidate for declaration
 					 * if we don't already have one.
 					 */
-                    if (candidate_start_ >= 0) {
-                        /*
+					if (candidate_start_ >= 0) 
+					{
+						/*
 						 * We already have a hash that occurs earlier,
 						 * isn't a collision and includes data that's
 						 * covered by this hash, so don't remember it
 						 * and keep going.
 						 */
-                        ASSERT(log_, candidate_start_ + (XCODEC_SEGMENT_LENGTH * 2) > off);
-                    } else {
-                        /*
+						ASSERT(log_, candidate_start_ + (XCODEC_SEGMENT_LENGTH * 2) > off);
+					}
+					else
+					{
+						/*
 						 * The hash at this offset doesn't collide with any
 						 * other and is the first viable hash we've seen so far
 						 * in the stream, so remember it so that if we don't
 						 * find something to reference we can declare this one
 						 * for future use.
 						 */
-                        candidate_start_ = off - XCODEC_SEGMENT_LENGTH;
-                        candidate_symbol_ = hash;
-                    }
-                }
-            }
-        }
-    }
+						candidate_start_ = off - XCODEC_SEGMENT_LENGTH;
+						candidate_symbol_ = hash;
+					}
+				}
+			}
+		}
+	}
 }
 
-bool XCodecEncoder::flush(Buffer &output) {
-    bool vld = false;
-
-    /*
+bool XCodecEncoder::flush (Buffer& output)
+{
+	bool vld = false;
+	
+	/*
 	 * There's a hash we can declare, do it.
 	 */
-    if (candidate_start_ >= 0) {
-        encode_declaration(output, source_, candidate_start_, candidate_symbol_);
-        candidate_start_ = -1;
-        vld = true;
-    }
+	if (candidate_start_ >= 0) 
+	{
+		encode_declaration (output, source_, candidate_start_, candidate_symbol_);
+		candidate_start_ = -1;
+		vld = true;
+	}
 
-    /*
+	/*
 	 * There's data after that hash or no candidate hash, so just escape it.
 	 */
-    if (source_.length() > 0) {
-        encode_escape(output, source_, source_.length());
-        vld = true;
-    }
-
-    xcodec_hash_.reset();
-
-    return vld;
+	if (source_.length () > 0)
+	{
+		encode_escape (output, source_, source_.length ());
+		vld = true;
+	}
+	
+	xcodec_hash_.reset();
+	
+	return vld;
 }
 
-void XCodecEncoder::encode_declaration(Buffer &output, Buffer &input, unsigned start, uint64_t hash) {
-    if (start > 0)
-        encode_escape(output, input, start);
-
-    cache_->enter(hash, input, 0);
-
-    output.append(XCODEC_MAGIC);
-    output.append(XCODEC_OP_EXTRACT);
-    output.append(input, XCODEC_SEGMENT_LENGTH);
-
-    input.skip(XCODEC_SEGMENT_LENGTH);
+void XCodecEncoder::encode_declaration (Buffer& output, Buffer& input, unsigned start, uint64_t hash)
+{
+	if (start > 0)
+		encode_escape (output, input, start);
+		
+	cache_->enter (hash, input, 0);
+	
+	output.append (XCODEC_MAGIC);
+	output.append (XCODEC_OP_EXTRACT);
+	output.append (input, XCODEC_SEGMENT_LENGTH);
+	
+	input.skip (XCODEC_SEGMENT_LENGTH);
 }
 
-void XCodecEncoder::encode_escape(Buffer &output, Buffer &input, unsigned length) {
-    unsigned pos;
+void XCodecEncoder::encode_escape (Buffer& output, Buffer& input, unsigned length)
+{
+	unsigned pos;
 
-    while (length > 0) {
-        if (input.find(XCODEC_MAGIC, 0, length, &pos)) {
-            if (pos > 0)
-                output.append(input, 0, pos);
-            output.append(XCODEC_MAGIC);
-            output.append(XCODEC_OP_ESCAPE);
-            input.skip(pos + 1);
-            length -= pos + 1;
-        } else {
-            output.append(input, length);
-            input.skip(length);
-            break;
-        }
-    }
+	while (length > 0)
+	{
+		if (input.find (XCODEC_MAGIC, 0, length, &pos))
+		{
+			if (pos > 0) 
+				output.append (input, 0, pos);
+			output.append (XCODEC_MAGIC);
+			output.append (XCODEC_OP_ESCAPE);
+			input.skip (pos + 1);
+			length -= pos + 1;
+		}
+		else
+		{
+			output.append (input, length);
+			input.skip (length);
+			break;
+		}
+	}
 }
 
-bool XCodecEncoder::encode_reference(Buffer &output, Buffer &input, unsigned start, uint64_t hash, Buffer &old) {
-    uint8_t data[XCODEC_SEGMENT_LENGTH];
-    input.copyout(data, start, XCODEC_SEGMENT_LENGTH);
+bool XCodecEncoder::encode_reference (Buffer& output, Buffer& input, unsigned start, uint64_t hash, Buffer& old)
+{
+	uint8_t data[XCODEC_SEGMENT_LENGTH];
+	input.copyout (data, start, XCODEC_SEGMENT_LENGTH);
 
-    if (old.equal(data, sizeof data)) {
-        if (start > 0)
-            encode_escape(output, input, start);
+	if (old.equal (data, sizeof data))
+	{
+		if (start > 0)
+			encode_escape (output, input, start);
 
-        output.append(XCODEC_MAGIC);
-        output.append(XCODEC_OP_REF);
-        uint64_t behash = BigEndian::encode(hash);
-        output.append(&behash);
-        input.skip(XCODEC_SEGMENT_LENGTH);
-        return true;
-    }
-
-    return false;
+		output.append (XCODEC_MAGIC);
+		output.append (XCODEC_OP_REF);
+		uint64_t behash = BigEndian::encode (hash);
+		output.append (&behash);
+		input.skip (XCODEC_SEGMENT_LENGTH);
+		return true;
+	}
+	
+	return false;
 }

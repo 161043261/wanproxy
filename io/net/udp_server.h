@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef IO_NET_UDP_SERVER_H
-#define IO_NET_UDP_SERVER_H
+#ifndef	IO_NET_UDP_SERVER_H
+#define	IO_NET_UDP_SERVER_H
 
 #include <io/socket/socket.h>
 
@@ -38,30 +38,36 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class UDPServer {
-    LogHandle log_;
-    Socket *socket_;
+class UDPServer 
+{
+	LogHandle log_;
+	Socket* socket_;
 
 public:
-    UDPServer() : log_("/udp/server"), socket_(0) {}
+	UDPServer () : log_("/udp/server"), socket_(0)
+	{ }
 
-    ~UDPServer() {
-        delete socket_;
-    }
+	~UDPServer ()
+	{
+		delete socket_;
+	}
 
-    bool listen(SocketAddressFamily family, const std::string &name);
+	bool listen (SocketAddressFamily family, const std::string& name);
 
-    Action *read(EventCallback *cb) {
-        return (socket_ ? socket_->read(cb) : 0);
-    }
+	Action* read (EventCallback* cb)
+	{
+		return (socket_ ? socket_->read (cb) : 0);
+	}
+	
+	Action* close (EventCallback* cb)
+	{
+		return (socket_ ? socket_->close (cb) : 0);
+	}
 
-    Action *close(EventCallback *cb) {
-        return (socket_ ? socket_->close(cb) : 0);
-    }
-
-    std::string getsockname(void) const {
-        return (socket_ ? socket_->getsockname() : std::string());
-    }
+	std::string getsockname (void) const
+	{
+		return (socket_ ? socket_->getsockname () : std::string ());
+	}
 };
 
 #endif /* !IO_NET_UDP_SERVER_H */

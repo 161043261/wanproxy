@@ -33,11 +33,11 @@
 
 #include <io/socket/socket_types.h>
 
-#include "wanproxy.h"
 #include "wanproxy_config_class_codec.h"
 #include "wanproxy_config_class_interface.h"
 #include "wanproxy_config_class_peer.h"
 #include "wanproxy_config_class_proxy.h"
+#include "wanproxy.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -51,59 +51,61 @@
 
 WANProxyConfigClassProxy wanproxy_config_class_proxy;
 
-bool WANProxyConfigClassProxy::Instance::activate(const ConfigObject *co) {
-    WANProxyConfigClassInterface::Instance *interface =
-            dynamic_cast<WANProxyConfigClassInterface::Instance *>(interface_->instance_);
-    if (interface == NULL)
-        return (false);
+bool
+WANProxyConfigClassProxy::Instance::activate(const ConfigObject *co)
+{
+	WANProxyConfigClassInterface::Instance *interface =
+		dynamic_cast<WANProxyConfigClassInterface::Instance *>(interface_->instance_);
+	if (interface == NULL)
+		return (false);
 
-    if (interface->host_ == "" || interface->port_ == "")
-        return (false);
+	if (interface->host_ == "" || interface->port_ == "")
+		return (false);
 
-    WANProxyCodec *interface_codec;
-    if (interface_codec_ != NULL) {
-        WANProxyConfigClassCodec::Instance *codec =
-                dynamic_cast<WANProxyConfigClassCodec::Instance *>(interface_codec_->instance_);
-        if (codec == NULL)
-            return (false);
-        interface_codec = &codec->codec_;
-    } else {
-        interface_codec = NULL;
-    }
+	WANProxyCodec *interface_codec;
+	if (interface_codec_ != NULL) {
+		WANProxyConfigClassCodec::Instance *codec =
+			dynamic_cast<WANProxyConfigClassCodec::Instance *>(interface_codec_->instance_);
+		if (codec == NULL)
+			return (false);
+		interface_codec = &codec->codec_;
+	} else {
+		interface_codec = NULL;
+	}
 
-    WANProxyConfigClassPeer::Instance *peer =
-            dynamic_cast<WANProxyConfigClassPeer::Instance *>(peer_->instance_);
-    if (peer == NULL)
-        return (false);
+	WANProxyConfigClassPeer::Instance *peer =
+		dynamic_cast<WANProxyConfigClassPeer::Instance *>(peer_->instance_);
+	if (peer == NULL)
+		return (false);
 
-    if (peer->host_ == "" || peer->port_ == "")
-        return (false);
+	if (peer->host_ == "" || peer->port_ == "")
+		return (false);
 
-    WANProxyCodec *peer_codec;
-    if (peer_codec_ != NULL) {
-        WANProxyConfigClassCodec::Instance *codec =
-                dynamic_cast<WANProxyConfigClassCodec::Instance *>(peer_codec_->instance_);
-        if (codec == NULL)
-            return (false);
-        peer_codec = &codec->codec_;
-    } else {
-        peer_codec = NULL;
-    }
-
-    if (role_ == WANProxyConfigProxyRoleUndefined && !interface_codec && peer_codec)
-        role_ = WANProxyConfigProxyRoleClient;
-
-    WanProxyInstance ins;
-    ins.proxy_name_ = co->name_;
-    ins.proxy_client_ = (role_ == WANProxyConfigProxyRoleClient);
-    ins.proxy_secure_ = (type_ == WANProxyConfigProxyTypeSSHSSH);
-    ins.local_protocol_ = interface->family_;
-    ins.local_address_ = '[' + interface->host_ + ']' + ':' + interface->port_;
-    ins.local_codec_ = (interface_codec ? *interface_codec : WANProxyCodec());
-    ins.remote_protocol_ = peer->family_;
-    ins.remote_address_ = '[' + peer->host_ + ']' + ':' + peer->port_;
-    ins.remote_codec_ = (peer_codec ? *peer_codec : WANProxyCodec());
-    wanproxy.add_proxy(ins.proxy_name_, ins);
-
-    return (true);
+	WANProxyCodec *peer_codec;
+	if (peer_codec_ != NULL) {
+		WANProxyConfigClassCodec::Instance *codec =
+			dynamic_cast<WANProxyConfigClassCodec::Instance *>(peer_codec_->instance_);
+		if (codec == NULL)
+			return (false);
+		peer_codec = &codec->codec_;
+	} else {
+		peer_codec = NULL;
+	}
+	
+	if (role_ == WANProxyConfigProxyRoleUndefined && ! interface_codec && peer_codec)
+		role_ = WANProxyConfigProxyRoleClient;
+		
+	WanProxyInstance ins;
+	ins.proxy_name_ = co->name_;
+	ins.proxy_client_ = (role_ == WANProxyConfigProxyRoleClient);
+	ins.proxy_secure_ = (type_ == WANProxyConfigProxyTypeSSHSSH);
+	ins.local_protocol_ = interface->family_;
+	ins.local_address_ = '[' + interface->host_ + ']' + ':' + interface->port_;
+	ins.local_codec_ = (interface_codec ? *interface_codec : WANProxyCodec ());
+	ins.remote_protocol_ = peer->family_;
+	ins.remote_address_ = '[' + peer->host_ + ']' + ':' + peer->port_;
+	ins.remote_codec_ = (peer_codec ? *peer_codec : WANProxyCodec ());
+	wanproxy.add_proxy (ins.proxy_name_, ins);
+	
+	return (true);
 }

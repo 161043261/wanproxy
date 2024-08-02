@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef COMMON_REGISTRAR_H
-#define COMMON_REGISTRAR_H
+#ifndef	COMMON_REGISTRAR_H
+#define	COMMON_REGISTRAR_H
 
 #include <set>
 
@@ -34,29 +34,33 @@
  */
 template<typename U, typename T>
 class Registrar {
-    std::set<T> registered_set_;
+	std::set<T> registered_set_;
 
-    Registrar(void)
-        : registered_set_() {}
+	Registrar(void)
+	: registered_set_()
+	{ }
 
-    ~Registrar() {}
-
+	~Registrar()
+	{ }
 public:
-    void enter(T item) {
-        registered_set_.insert(item);
-    }
+	void enter(T item)
+	{
+		registered_set_.insert(item);
+	}
 
-    std::set<T> enumerate(void) const {
-        return (registered_set_);
-    }
+	std::set<T> enumerate(void) const
+	{
+		return (registered_set_);
+	}
 
-    static Registrar *instance(void) {
-        static Registrar *instance;
+	static Registrar *instance(void)
+	{
+		static Registrar *instance;
 
-        if (instance == NULL)
-            instance = new Registrar();
-        return (instance);
-    }
+		if (instance == NULL)
+			instance = new Registrar();
+		return (instance);
+	}
 };
 
 #endif /* !COMMON_REGISTRAR_H */

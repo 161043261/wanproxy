@@ -23,14 +23,14 @@
  * SUCH DAMAGE.
  */
 
-#ifndef PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_PROXY_TYPE_H
-#define PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_PROXY_TYPE_H
+#ifndef	PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_PROXY_TYPE_H
+#define	PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_PROXY_TYPE_H
 
 #include <config/config_type_enum.h>
 
 enum WANProxyConfigProxyType {
-    WANProxyConfigProxyTypeTCPTCP,
-    WANProxyConfigProxyTypeSSHSSH,
+	WANProxyConfigProxyTypeTCPTCP,
+	WANProxyConfigProxyTypeSSHSSH,
 };
 
 typedef ConfigTypeEnum<WANProxyConfigProxyType> WANProxyConfigTypeProxyType;

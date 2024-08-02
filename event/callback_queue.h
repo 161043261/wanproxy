@@ -23,12 +23,12 @@
  * SUCH DAMAGE.
  */
 
-#ifndef EVENT_CALLBACK_QUEUE_H
-#define EVENT_CALLBACK_QUEUE_H
+#ifndef	EVENT_CALLBACK_QUEUE_H
+#define	EVENT_CALLBACK_QUEUE_H
 
 #include <deque>
-#include <event/action.h>
 #include <event/callback.h>
+#include <event/action.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -40,94 +40,111 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class CallbackQueue {
-    class QueuedAction : public Action {
-        CallbackQueue &queue_;
-        uint64_t generation_;
-        Callback *callback_;
+class CallbackQueue 
+{
+	class QueuedAction : public Action 
+	{
+		CallbackQueue& queue_;
+		uint64_t generation_;
+		Callback* callback_;
+		
+	public:
+		QueuedAction (CallbackQueue& q, uint64_t g, Callback* cb)
+		: queue_(q),
+		  generation_(g),
+		  callback_(cb)
+		{ 
+		}
+		
+		~QueuedAction ()
+		{
+			delete callback_;
+		}
+		
+		virtual void cancel ()
+		{
+			cancelled_ = true;
+			queue_.cancel (this);
+		}
+		
+   	friend class CallbackQueue;
+	};
 
-    public:
-        QueuedAction(CallbackQueue &q, uint64_t g, Callback *cb)
-            : queue_(q),
-              generation_(g),
-              callback_(cb) {
-        }
-
-        ~QueuedAction() {
-            delete callback_;
-        }
-
-        virtual void cancel() {
-            cancelled_ = true;
-            queue_.cancel(this);
-        }
-
-        friend class CallbackQueue;
-    };
-
-    std::deque<QueuedAction *> queue_;
-    uint64_t generation_;
-
+	std::deque<QueuedAction*> queue_;
+	uint64_t generation_;
+	
 public:
-    CallbackQueue()
-        : queue_(),
-          generation_(0) {}
+	CallbackQueue ()
+	: queue_(),
+	  generation_(0)
+	{ }
 
-    ~CallbackQueue() {
-        std::deque<QueuedAction *>::iterator it;
-        for (it = queue_.begin(); it != queue_.end(); ++it) {
-            delete *it;
-            *it = 0;
-        }
-    }
+	~CallbackQueue ()
+	{
+		std::deque<QueuedAction*>::iterator it;
+		for (it = queue_.begin (); it != queue_.end (); ++it) 
+		{
+			delete *it;
+			*it = 0;
+		}
+	}
 
-    Action *schedule(Callback *cb) {
-        QueuedAction *a = new QueuedAction(*this, generation_, cb);
-        queue_.push_back(a);
-        return (a);
-    }
+	Action* schedule (Callback* cb)
+	{
+		QueuedAction* a = new QueuedAction (*this, generation_, cb);
+		queue_.push_back (a);
+		return (a);
+	}
 
-    /*
-     * Runs all callbacks that have already been queued, but none that
-     * are added by callbacks that are called as part of the drain
-     * operation.  Returns true if there are queued callbacks that were
-     * added during drain.
-     */
-    bool drain(void) {
-        generation_++;
-        while (!queue_.empty()) {
-            QueuedAction *a = queue_.front();
-            if (a->generation_ >= generation_)
-                return (true);
-            queue_.pop_front();
-            if (a->callback_)
-                a->callback_->execute();
-        }
-        return (false);
-    }
+	/*
+	 * Runs all callbacks that have already been queued, but none that
+	 * are added by callbacks that are called as part of the drain
+	 * operation.  Returns true if there are queued callbacks that were
+	 * added during drain.
+	 */
+	bool drain (void)
+	{
+		generation_++;
+		while (! queue_.empty ()) 
+		{
+			QueuedAction* a = queue_.front ();
+			if (a->generation_ >= generation_)
+				return (true);
+			queue_.pop_front ();
+			if (a->callback_)
+				a->callback_->execute ();
+		}
+		return (false);
+	}
 
-    bool empty() const {
-        return (queue_.empty());
-    }
+	bool empty () const
+	{
+		return (queue_.empty ());
+	}
 
-    void perform() {
-        if (!queue_.empty()) {
-            QueuedAction *a = queue_.front();
-            if (a->callback_)
-                a->callback_->execute();
-        }
-    }
+	void perform ()
+	{
+		if (! queue_.empty ())
+		{
+			QueuedAction* a = queue_.front ();
+			if (a->callback_)
+				a->callback_->execute ();
+		}
+	}
 
-    void cancel(QueuedAction *a) {
-        std::deque<QueuedAction *>::iterator it;
-        for (it = queue_.begin(); it != queue_.end(); ++it) {
-            if (*it == a) {
-                queue_.erase(it);
-                break;
-            }
-        }
-        delete a;
-    }
+	void cancel (QueuedAction* a)
+	{
+		std::deque<QueuedAction*>::iterator it;
+		for (it = queue_.begin (); it != queue_.end (); ++it) 
+		{
+			if (*it == a)
+			{
+				queue_.erase (it);
+				break;
+			}
+		}
+		delete a;
+	}
 };
 
 #endif /* !EVENT_CALLBACK_QUEUE_H */

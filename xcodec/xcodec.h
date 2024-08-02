@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef XCODEC_XCODEC_H
-#define XCODEC_XCODEC_H
+#ifndef	XCODEC_XCODEC_H
+#define	XCODEC_XCODEC_H
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -36,7 +36,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define XCODEC_MAGIC ((uint8_t) 0xf1) /* Magic!  */
+#define	XCODEC_MAGIC		((uint8_t)0xf1)	/* Magic!  */
 
 /*
  * Usage:
@@ -46,7 +46,7 @@
  * 	A literal XCODEC_MAGIC appears in the output stream.
  *
  */
-#define XCODEC_OP_ESCAPE ((uint8_t) 0x00)
+#define	XCODEC_OP_ESCAPE	((uint8_t)0x00)
 
 /*
  * Usage:
@@ -60,7 +60,7 @@
  * 	indicated from the decoder.
  *
  */
-#define XCODEC_OP_EXTRACT ((uint8_t) 0x01)
+#define	XCODEC_OP_EXTRACT	((uint8_t)0x01)
 
 /*
  * Usage:
@@ -73,8 +73,8 @@
  * 	If the `hash' is not known, an OP_ASK will be sent in response.
  *
  */
-#define XCODEC_OP_REF ((uint8_t) 0x02)
+#define	XCODEC_OP_REF		((uint8_t)0x02)
 
-#define XCODEC_SEGMENT_LENGTH (2048)
+#define	XCODEC_SEGMENT_LENGTH	(2048)
 
 #endif /* !XCODEC_XCODEC_H */

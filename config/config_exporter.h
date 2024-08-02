@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef CONFIG_CONFIG_EXPORTER_H
-#define CONFIG_CONFIG_EXPORTER_H
+#ifndef	CONFIG_CONFIG_EXPORTER_H
+#define	CONFIG_CONFIG_EXPORTER_H
 
 class ConfigClass;
 class ConfigClassInstance;
@@ -34,14 +34,16 @@ class ConfigType;
 
 class ConfigExporter {
 protected:
-    ConfigExporter(void) {}
+	ConfigExporter(void)
+	{ }
 
-    virtual ~ConfigExporter() {}
+	virtual ~ConfigExporter()
+	{ }
 
 public:
-    virtual void field(const ConfigClassInstance *, const ConfigClassMember *, const std::string &) = 0;
-    virtual void object(const ConfigObject *, const std::string &) = 0;
-    virtual void value(const ConfigType *, const std::string &) = 0;
+	virtual void field(const ConfigClassInstance *, const ConfigClassMember *, const std::string&) = 0;
+	virtual void object(const ConfigObject *, const std::string&) = 0;
+	virtual void value(const ConfigType *, const std::string&) = 0;
 };
 
 #endif /* !CONFIG_CONFIG_EXPORTER_H */

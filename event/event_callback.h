@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef EVENT_EVENT_CALLBACK_H
-#define EVENT_EVENT_CALLBACK_H
+#ifndef	EVENT_EVENT_CALLBACK_H
+#define	EVENT_EVENT_CALLBACK_H
 
 #include <event/event.h>
 #include <event/typed_callback.h>

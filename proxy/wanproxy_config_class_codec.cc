@@ -23,15 +23,15 @@
  * SUCH DAMAGE.
  */
 
-#include "wanproxy_config_class_codec.h"
-#include "wanproxy.h"
 #include <common/buffer.h>
 #include <common/uuid/uuid.h>
 #include <config/config_class.h>
 #include <config/config_object.h>
-#include <xcodec/cache/coss/xcodec_cache_coss.h>
 #include <xcodec/xcodec.h>
 #include <xcodec/xcodec_cache.h>
+#include <xcodec/cache/coss/xcodec_cache_coss.h>
+#include "wanproxy_config_class_codec.h"
+#include "wanproxy.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -45,74 +45,81 @@
 
 WANProxyConfigClassCodec wanproxy_config_class_codec;
 
-bool WANProxyConfigClassCodec::Instance::activate(const ConfigObject *co) {
-    UUID uuid;
-    XCodecCache *cache;
+bool
+WANProxyConfigClassCodec::Instance::activate(const ConfigObject *co)
+{
+	UUID uuid;
+	XCodecCache* cache;
+	
+	codec_.name_ = co->name_;
 
-    codec_.name_ = co->name_;
+	switch (codec_type_) 
+	{
+	case WANProxyConfigCodecXCodec:
+		/*
+		 * Fetch UUID from permanent storage if there is any.
+		 */
+		if (cache_path_.empty())
+		{
+			uuid.generate();
+		}
+		else
+		{   
+			std::string uuid_path = cache_path_ + "/UUID";
+			if (! uuid.from_file (uuid_path))
+			{
+				uuid.generate();
+				uuid.to_file (uuid_path);
+			}
+		}
 
-    switch (codec_type_) {
-        case WANProxyConfigCodecXCodec:
-            /*
-             * Fetch UUID from permanent storage if there is any.
-             */
-            if (cache_path_.empty()) {
-                uuid.generate();
-            } else {
-                std::string uuid_path = cache_path_ + "/UUID";
-                if (!uuid.from_file(uuid_path)) {
-                    uuid.generate();
-                    uuid.to_file(uuid_path);
-                }
-            }
+		codec_.cache_type_ = cache_type_;
+		codec_.cache_path_ = cache_path_;
+		codec_.cache_size_ = local_size_;
+		codec_.cache_uuid_ = uuid;
 
-            codec_.cache_type_ = cache_type_;
-            codec_.cache_path_ = cache_path_;
-            codec_.cache_size_ = local_size_;
-            codec_.cache_uuid_ = uuid;
+		if (! (cache = wanproxy.find_cache (uuid)))
+			cache = wanproxy.add_cache (cache_type_, cache_path_, local_size_, uuid);
+		codec_.xcache_ = cache;
+		break;
+	case WANProxyConfigCodecNone:
+		codec_.xcache_ = 0;
+		break;
+	default:
+		ERROR("/wanproxy/config/codec") << "Invalid codec type.";
+		return (false);
+	}
 
-            if (!(cache = wanproxy.find_cache(uuid)))
-                cache = wanproxy.add_cache(cache_type_, cache_path_, local_size_, uuid);
-            codec_.xcache_ = cache;
-            break;
-        case WANProxyConfigCodecNone:
-            codec_.xcache_ = 0;
-            break;
-        default:
-            ERROR("/wanproxy/config/codec") << "Invalid codec type.";
-            return (false);
-    }
+	INFO("/wanproxy/config/cache/type") << cache_type_;
+	INFO("/wanproxy/config/cache/path") << cache_path_;
+	INFO("/wanproxy/config/cache/size") << local_size_;
+	INFO("/wanproxy/config/cache/uuid") << uuid;
+		
+	switch (compressor_) {
+	case WANProxyConfigCompressorZlib:
+		if (compressor_level_ < 0 || compressor_level_ > 9) {
+			ERROR("/wanproxy/config/codec") << "Compressor level must be in range 0..9 (inclusive.)";
+			return (false);
+		}
 
-    INFO("/wanproxy/config/cache/type") << cache_type_;
-    INFO("/wanproxy/config/cache/path") << cache_path_;
-    INFO("/wanproxy/config/cache/size") << local_size_;
-    INFO("/wanproxy/config/cache/uuid") << uuid;
+		codec_.compressor_ = true;
+		codec_.compressor_level_ = (char) compressor_level_;
+		break;
+	case WANProxyConfigCompressorNone:
+		if (compressor_level_ > 0) {
+			ERROR("/wanproxy/config/codec") << "Compressor level set but no compressor.";
+			return (false);
+		}
 
-    switch (compressor_) {
-        case WANProxyConfigCompressorZlib:
-            if (compressor_level_ < 0 || compressor_level_ > 9) {
-                ERROR("/wanproxy/config/codec") << "Compressor level must be in range 0..9 (inclusive.)";
-                return (false);
-            }
+		codec_.compressor_ = false;
+		codec_.compressor_level_ = 0;
+		break;
+	default:
+		ERROR("/wanproxy/config/codec") << "Invalid compressor type.";
+		return (false);
+	}
 
-            codec_.compressor_ = true;
-            codec_.compressor_level_ = (char) compressor_level_;
-            break;
-        case WANProxyConfigCompressorNone:
-            if (compressor_level_ > 0) {
-                ERROR("/wanproxy/config/codec") << "Compressor level set but no compressor.";
-                return (false);
-            }
+   codec_.counting_ = (byte_counts_ != 0);
 
-            codec_.compressor_ = false;
-            codec_.compressor_level_ = 0;
-            break;
-        default:
-            ERROR("/wanproxy/config/codec") << "Invalid compressor type.";
-            return (false);
-    }
-
-    codec_.counting_ = (byte_counts_ != 0);
-
-    return (true);
+	return (true);
 }

@@ -33,28 +33,32 @@
 
 ConfigTypePointer config_type_pointer;
 
-void ConfigTypePointer::marshall(ConfigExporter *exp, ConfigObject *const *cop) const {
-    const ConfigObject *co = *cop;
+void
+ConfigTypePointer::marshall(ConfigExporter *exp, ConfigObject *const *cop) const
+{
+	const ConfigObject *co = *cop;
 
-    if (co == NULL)
-        exp->value(this, "None");
-    else
-        exp->value(this, co->name_);
+	if (co == NULL)
+		exp->value(this, "None");
+	else
+		exp->value(this, co->name_);
 }
 
-bool ConfigTypePointer::set(ConfigObject *co, const std::string &vstr, ConfigObject **cop) {
-    if (vstr == "None") {
-        *cop = NULL;
-        return (true);
-    }
+bool
+ConfigTypePointer::set(ConfigObject *co, const std::string& vstr, ConfigObject **cop)
+{
+	if (vstr == "None") {
+		*cop = NULL;
+		return (true);
+	}
 
-    ConfigObject *target = co->config_->lookup(vstr);
-    if (target == NULL) {
-        ERROR("/config/type/pointer") << "Referenced object (" << vstr << ") does not exist.";
-        return (false);
-    }
+	ConfigObject *target = co->config_->lookup(vstr);
+	if (target == NULL) {
+		ERROR("/config/type/pointer") << "Referenced object (" << vstr << ") does not exist.";
+		return (false);
+	}
 
-    *cop = target;
+	*cop = target;
 
-    return (true);
+	return (true);
 }

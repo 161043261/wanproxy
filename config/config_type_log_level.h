@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef CONFIG_CONFIG_TYPE_LOG_LEVEL_H
-#define CONFIG_CONFIG_TYPE_LOG_LEVEL_H
+#ifndef	CONFIG_CONFIG_TYPE_LOG_LEVEL_H
+#define	CONFIG_CONFIG_TYPE_LOG_LEVEL_H
 
 #include <config/config_type_enum.h>
 

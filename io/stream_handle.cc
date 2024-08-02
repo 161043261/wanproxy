@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#include <event/event_system.h>
 #include <fcntl.h>
+#include <event/event_system.h>
 #include <io/stream_handle.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,28 +37,33 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-StreamHandle::StreamHandle(int fd) : log_("/file/descriptor"), fd_(fd) {
-    int flags = ::fcntl(fd_, F_GETFL, 0);
-    if (flags == -1)
-        ERROR(log_) << "Could not get flags for file descriptor.";
-    else {
-        flags = ::fcntl(fd_, F_SETFL, flags | O_NONBLOCK);
-        if (flags == -1)
-            ERROR(log_) << "Could not set flags for file descriptor, some operations may block.";
-    }
+StreamHandle::StreamHandle (int fd) : log_("/file/descriptor"), fd_(fd)
+{
+	int flags = ::fcntl (fd_, F_GETFL, 0);
+	if (flags == -1)
+		ERROR(log_) << "Could not get flags for file descriptor.";
+	else 
+	{
+		flags = ::fcntl (fd_, F_SETFL, flags | O_NONBLOCK);
+		if (flags == -1)
+			ERROR(log_) << "Could not set flags for file descriptor, some operations may block.";
+	}
 }
 
-Action *StreamHandle::read(EventCallback *cb) {
-    return event_system.track(fd_, StreamModeRead, cb);
+Action* StreamHandle::read (EventCallback* cb)
+{
+	return event_system.track (fd_, StreamModeRead, cb);
 }
 
-Action *StreamHandle::write(Buffer &buf, EventCallback *cb) {
-    if (cb)
-        cb->param().buffer_ = buf;
-
-    return event_system.track(fd_, StreamModeWrite, cb);
+Action* StreamHandle::write (Buffer& buf, EventCallback* cb)
+{
+	if (cb)
+		cb->param ().buffer_ = buf;
+		
+	return event_system.track (fd_, StreamModeWrite, cb);
 }
 
-Action *StreamHandle::close(EventCallback *cb) {
-    return event_system.track(fd_, StreamModeEnd, cb);
+Action* StreamHandle::close (EventCallback* cb)
+{
+	return event_system.track (fd_, StreamModeEnd, cb);
 }

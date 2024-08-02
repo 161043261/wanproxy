@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef PROGRAMS_WANPROXY_WANPROXY_CODEC_H
-#define PROGRAMS_WANPROXY_WANPROXY_CODEC_H
+#ifndef	PROGRAMS_WANPROXY_WANPROXY_CODEC_H
+#define	PROGRAMS_WANPROXY_WANPROXY_CODEC_H
 
 #include "wanproxy_config_type_codec.h"
 #include "wanproxy_config_type_compressor.h"
@@ -41,32 +41,33 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 struct WANProxyCodec {
-    std::string name_;
-    WANProxyConfigCache cache_type_;
-    std::string cache_path_;
-    size_t cache_size_;
-    UUID cache_uuid_;
-    XCodecCache *xcache_;
-    bool compressor_;
-    char compressor_level_;
-    bool counting_;
-    intmax_t request_input_bytes_;
-    intmax_t request_output_bytes_;
-    intmax_t response_input_bytes_;
-    intmax_t response_output_bytes_;
+	std::string name_;
+	WANProxyConfigCache cache_type_;
+	std::string cache_path_;
+	size_t cache_size_;
+	UUID cache_uuid_;
+	XCodecCache* xcache_;
+	bool compressor_;
+	char compressor_level_;
+   bool counting_;
+	intmax_t request_input_bytes_;
+	intmax_t request_output_bytes_;
+	intmax_t response_input_bytes_;
+	intmax_t response_output_bytes_;
 
-    WANProxyCodec(void)
-        : name_(""),
-          cache_type_(WANProxyConfigCacheMemory),
-          cache_size_(0),
-          xcache_(NULL),
-          compressor_(false),
-          compressor_level_(0),
-          counting_(false),
-          request_input_bytes_(0),
-          request_output_bytes_(0),
-          response_input_bytes_(0),
-          response_output_bytes_(0) {}
+	WANProxyCodec(void)
+	: name_(""),
+	  cache_type_(WANProxyConfigCacheMemory),
+	  cache_size_(0),
+	  xcache_(NULL),
+	  compressor_(false),
+	  compressor_level_(0),
+     counting_(false),
+	  request_input_bytes_(0),
+	  request_output_bytes_(0),
+	  response_input_bytes_(0),
+	  response_output_bytes_(0)
+	{ }
 };
 
 #endif /* !PROGRAMS_WANPROXY_WANPROXY_CODEC_H */

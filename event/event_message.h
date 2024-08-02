@@ -8,14 +8,15 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef EVENT_EVENT_MESSAGE_H
-#define EVENT_EVENT_MESSAGE_H
+#ifndef	EVENT_EVENT_MESSAGE_H
+#define	EVENT_EVENT_MESSAGE_H
 
 class EventAction;
 
-struct EventMessage {
-    int op;
-    EventAction *action;
+struct EventMessage 
+{
+	int op; 
+	EventAction* action; 
 };
-
+		
 #endif /* !EVENT_EVENT_MESSAGE_H */

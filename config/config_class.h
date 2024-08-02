@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef CONFIG_CONFIG_CLASS_H
-#define CONFIG_CONFIG_CLASS_H
+#ifndef	CONFIG_CONFIG_CLASS_H
+#define	CONFIG_CONFIG_CLASS_H
 
 #include <map>
 
@@ -50,58 +50,62 @@ class ConfigObject;
  */
 class ConfigClassInstance {
 protected:
-    ConfigClassInstance(void) {}
-
+	ConfigClassInstance(void)
+	{ }
 public:
-    virtual ~ConfigClassInstance() {}
+	virtual ~ConfigClassInstance()
+	{ }
 
-    virtual bool activate(const ConfigObject *) = 0;
+	virtual bool activate(const ConfigObject *) = 0;
 };
 
 class ConfigClassMember {
 protected:
-    ConfigClassMember(void) {}
-
+	ConfigClassMember(void)
+	{ }
 public:
-    virtual ~ConfigClassMember() {}
+	virtual ~ConfigClassMember()
+	{ }
 
-    virtual void marshall(ConfigExporter *, const ConfigClassInstance *) const = 0;
-    virtual bool set(ConfigObject *, const std::string &) const = 0;
-    virtual ConfigType *type(void) const = 0;
+	virtual void marshall(ConfigExporter *, const ConfigClassInstance *) const = 0;
+	virtual bool set(ConfigObject *, const std::string&) const = 0;
+	virtual ConfigType *type(void) const = 0;
 };
 
 class ConfigClass {
-    friend class Config;
-    friend struct ConfigObject;
+	friend class Config;
+	friend struct ConfigObject;
 
-    std::string name_;
-    Factory<ConfigClassInstance> *factory_;
-    std::map<std::string, const ConfigClassMember *> members_;
-
+	std::string name_;
+	Factory<ConfigClassInstance> *factory_;
+	std::map<std::string, const ConfigClassMember *> members_;
 protected:
-    ConfigClass(const std::string &xname, Factory<ConfigClassInstance> *factory)
-        : name_(xname),
-          factory_(factory),
-          members_() {}
+	ConfigClass(const std::string& xname, Factory<ConfigClassInstance> *factory)
+	: name_(xname),
+	  factory_(factory),
+	  members_()
+	{ }
 
-    virtual ~ConfigClass();
+	virtual ~ConfigClass();
 
-    template<typename Tc, typename Tf, typename Ti>
-    void add_member(const std::string &mname, Tc type, Tf Ti::*fieldp);
+	template<typename Tc, typename Tf, typename Ti>
+	void add_member(const std::string& mname, Tc type, Tf Ti::*fieldp);
 
 private:
-    ConfigClassInstance *allocate(void) const {
-        return (factory_->create());
-    }
+	ConfigClassInstance *allocate(void) const
+	{
+		return (factory_->create());
+	}
 
-    bool set(ConfigObject *, const std::string &, const std::string &) const;
+	bool set(ConfigObject *, const std::string&, const std::string&) const;
 
 public:
-    void marshall(ConfigExporter *, const ConfigClassInstance *) const;
+	void marshall(ConfigExporter *, const ConfigClassInstance *) const;
 
-    std::string name(void) const {
-        return (name_);
-    }
+	std::string name(void) const
+	{
+		return (name_);
+	}
 };
 
 #endif /* !CONFIG_CONFIG_CLASS_H */
