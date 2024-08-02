@@ -1,4 +1,4 @@
-WANProxy XTech version 3.0
+# WANProxy XTech version 3.0
 ==========================
 
 This is an efficiency-oriented light-weight version of the original WANProxy as released by Juli Mallett on 2013, modified later by Diego Woitasen to add a persistent cache on disk based on Squid COSS patterns.
@@ -16,5 +16,13 @@ Only the core wanproxy program is included here without any associated utilities
 This version has been originated, sponsored and advised by XTech.
 
 
-
-
+```sh
+make
+cd proxy/bin
+# server
+./wanproxy -c ../wanproxy.server.conf
+iperf3 -s -p 3302
+# client
+./wanproxy -c ../wanproxy.client.conf
+iperf3 -c localhost -p 3300 -i 1
+```
