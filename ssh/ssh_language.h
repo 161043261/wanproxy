@@ -23,30 +23,28 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	SSH_SSH_LANGUAGE_H
-#define	SSH_SSH_LANGUAGE_H
+#ifndef SSH_SSH_LANGUAGE_H
+#define SSH_SSH_LANGUAGE_H
 
 namespace SSH {
-	class Language {
-		std::string name_;
-	protected:
-		Language(const std::string& xname)
-		: name_(xname)
-		{ }
+    class Language {
+        std::string name_;
 
-	public:
-		virtual ~Language()
-		{ }
+    protected:
+        Language(const std::string &xname)
+            : name_(xname) {}
 
-		std::string name(void) const
-		{
-			return (name_);
-		}
+    public:
+        virtual ~Language() {}
 
-		virtual Language *clone(void) const = 0;
+        std::string name(void) const {
+            return (name_);
+        }
 
-		virtual bool input(Buffer *) = 0;
-	};
-}
+        virtual Language *clone(void) const = 0;
+
+        virtual bool input(Buffer *) = 0;
+    };
+}// namespace SSH
 
 #endif /* !SSH_SSH_LANGUAGE_H */

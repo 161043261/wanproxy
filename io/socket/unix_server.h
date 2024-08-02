@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	IO_SOCKET_UNIX_SERVER_H
-#define	IO_SOCKET_UNIX_SERVER_H
+#ifndef IO_SOCKET_UNIX_SERVER_H
+#define IO_SOCKET_UNIX_SERVER_H
 
 #include <io/socket/socket.h>
 
@@ -38,31 +38,26 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class UnixServer 
-{
-	LogHandle log_;
-	Socket* socket_;
+class UnixServer {
+    LogHandle log_;
+    Socket *socket_;
 
 public:
-	UnixServer () : log_("/unix/server"), socket_(0)
-	{ }
+    UnixServer() : log_("/unix/server"), socket_(0) {}
 
-	~UnixServer()
-	{
-		delete socket_;
-	}
+    ~UnixServer() {
+        delete socket_;
+    }
 
-	bool listen (const std::string& name);
-	
-	Action* accept (SocketEventCallback* cb)
-	{
-		return (socket_ ? socket_->accept (cb) : 0);
-	}
+    bool listen(const std::string &name);
 
-	Action* close (EventCallback* cb)
-	{
-		return (socket_ ? socket_->close (cb) : 0);
-	}
+    Action *accept(SocketEventCallback *cb) {
+        return (socket_ ? socket_->accept(cb) : 0);
+    }
+
+    Action *close(EventCallback *cb) {
+        return (socket_ ? socket_->close(cb) : 0);
+    }
 };
 
 #endif /* !IO_SOCKET_UNIX_SERVER_H */

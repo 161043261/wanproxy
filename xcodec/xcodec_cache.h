@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	XCODEC_XCODEC_CACHE_H
-#define	XCODEC_XCODEC_CACHE_H
+#ifndef XCODEC_XCODEC_CACHE_H
+#define XCODEC_XCODEC_CACHE_H
 
 #include <ext/hash_map>
 #include <map>
@@ -45,7 +45,7 @@
 
 #define USING_XCODEC_CACHE_RECENT_WINDOW
 
-#define XCODEC_WINDOW_COUNT  64  // must be binary
+#define XCODEC_WINDOW_COUNT 64// must be binary
 
 /*
  * XXX
@@ -54,160 +54,141 @@
  * we need this wrapper structure to throw our hashes into so that GCC's hash
  * function can be reliably defined to use them.
  */
-struct Hash64 
-{
-	uint64_t hash_;
+struct Hash64 {
+    uint64_t hash_;
 
-	Hash64(const uint64_t& hash)
-	: hash_(hash)
-	{ }
+    Hash64(const uint64_t &hash)
+        : hash_(hash) {}
 
-	bool operator== (const Hash64& hash) const
-	{
-		return (hash_ == hash.hash_);
-	}
+    bool operator==(const Hash64 &hash) const {
+        return (hash_ == hash.hash_);
+    }
 
-	bool operator< (const Hash64& hash) const
-	{
-		return (hash_ < hash.hash_);
-	}
+    bool operator<(const Hash64 &hash) const {
+        return (hash_ < hash.hash_);
+    }
 };
 
-namespace __gnu_cxx 
-{
-	template<>
-	struct hash<Hash64> 
-	{
-		size_t operator() (const Hash64& x) const
-		{
-			return (x.hash_);
-		}
-	};
-}
+namespace __gnu_cxx {
+    template<>
+    struct hash<Hash64> {
+        size_t operator()(const Hash64 &x) const {
+            return (x.hash_);
+        }
+    };
+}// namespace __gnu_cxx
 
 
-class XCodecCache 
-{
+class XCodecCache {
 private:
-	UUID uuid_;
-	size_t size_;
+    UUID uuid_;
+    size_t size_;
 #ifdef USING_XCODEC_CACHE_RECENT_WINDOW
-	struct WindowItem {uint64_t hash; const uint8_t* data;};
-	WindowItem window_[XCODEC_WINDOW_COUNT];
-	unsigned cursor_;
+    struct WindowItem {
+        uint64_t hash;
+        const uint8_t *data;
+    };
+    WindowItem window_[XCODEC_WINDOW_COUNT];
+    unsigned cursor_;
 #endif
 
 protected:
-	XCodecCache (const UUID& uuid, size_t size)
-	: uuid_(uuid),
-	  size_(size)
-	{
+    XCodecCache(const UUID &uuid, size_t size)
+        : uuid_(uuid),
+          size_(size) {
 #ifdef USING_XCODEC_CACHE_RECENT_WINDOW
-		memset (window_, 0, sizeof window_);
-		cursor_ = 0;
+        memset(window_, 0, sizeof window_);
+        cursor_ = 0;
 #endif
-	}
+    }
 
 public:
-	virtual ~XCodecCache()
-	{ }
-	
-	const UUID& identifier ()
-	{
-		return uuid_;
-	}
+    virtual ~XCodecCache() {}
 
-	size_t nominal_size ()
-	{
-		return size_;
-	}
+    const UUID &identifier() {
+        return uuid_;
+    }
 
-	virtual void enter (const uint64_t& hash, const Buffer& buf, unsigned off) = 0;
-	virtual bool lookup (const uint64_t& hash, Buffer& buf) = 0;
+    size_t nominal_size() {
+        return size_;
+    }
+
+    virtual void enter(const uint64_t &hash, const Buffer &buf, unsigned off) = 0;
+    virtual bool lookup(const uint64_t &hash, Buffer &buf) = 0;
 
 #ifdef USING_XCODEC_CACHE_RECENT_WINDOW
-protected:	
-	void remember (const uint64_t& hash, const uint8_t* data)
-	{
-		window_[cursor_].hash = hash;
-		window_[cursor_].data = data;
-		cursor_ = (cursor_ + 1) & (XCODEC_WINDOW_COUNT - 1);
-	}
-	
-	const uint8_t* find_recent (const uint64_t& hash)
-	{
-		WindowItem* w;
-		int n;
-		
-		for (w = window_, n = XCODEC_WINDOW_COUNT; n > 0; --n, ++w)
-			if (w->hash == hash)
-				return w->data;
-				
-		return 0;
-	}
-	
-	void forget (const uint64_t& hash)
-	{
-		WindowItem* w;
-		int n;
-		
-		for (w = window_, n = XCODEC_WINDOW_COUNT; n > 0; --n, ++w)
-			if (w->hash == hash)
-				w->hash = 0;
-	}
+protected:
+    void remember(const uint64_t &hash, const uint8_t *data) {
+        window_[cursor_].hash = hash;
+        window_[cursor_].data = data;
+        cursor_ = (cursor_ + 1) & (XCODEC_WINDOW_COUNT - 1);
+    }
+
+    const uint8_t *find_recent(const uint64_t &hash) {
+        WindowItem *w;
+        int n;
+
+        for (w = window_, n = XCODEC_WINDOW_COUNT; n > 0; --n, ++w)
+            if (w->hash == hash)
+                return w->data;
+
+        return 0;
+    }
+
+    void forget(const uint64_t &hash) {
+        WindowItem *w;
+        int n;
+
+        for (w = window_, n = XCODEC_WINDOW_COUNT; n > 0; --n, ++w)
+            if (w->hash == hash)
+                w->hash = 0;
+    }
 #endif
 };
 
 
-class XCodecMemoryCache : public XCodecCache 
-{
-	typedef __gnu_cxx::hash_map<Hash64, const uint8_t*> segment_hash_map_t;
-	segment_hash_map_t segment_hash_map_;
-	LogHandle log_;
-	
+class XCodecMemoryCache : public XCodecCache {
+    typedef __gnu_cxx::hash_map<Hash64, const uint8_t *> segment_hash_map_t;
+    segment_hash_map_t segment_hash_map_;
+    LogHandle log_;
+
 public:
-	XCodecMemoryCache (const UUID& uuid, size_t size)
-	: XCodecCache(uuid, size),
-	  log_("/xcodec/cache/memory")
-	{ }
+    XCodecMemoryCache(const UUID &uuid, size_t size)
+        : XCodecCache(uuid, size),
+          log_("/xcodec/cache/memory") {}
 
-	~XCodecMemoryCache()
-	{
-		segment_hash_map_t::const_iterator it;
-		for (it = segment_hash_map_.begin(); it != segment_hash_map_.end(); ++it)
-			delete[] it->second;
-		segment_hash_map_.clear();
-	}
+    ~XCodecMemoryCache() {
+        segment_hash_map_t::const_iterator it;
+        for (it = segment_hash_map_.begin(); it != segment_hash_map_.end(); ++it)
+            delete[] it->second;
+        segment_hash_map_.clear();
+    }
 
-	void enter (const uint64_t& hash, const Buffer& buf, unsigned off)
-	{
-		ASSERT(log_, segment_hash_map_.find(hash) == segment_hash_map_.end());
-		uint8_t* data = new uint8_t[XCODEC_SEGMENT_LENGTH];
-		buf.copyout (data, off, XCODEC_SEGMENT_LENGTH);
-		segment_hash_map_[hash] = data;
-	}
+    void enter(const uint64_t &hash, const Buffer &buf, unsigned off) {
+        ASSERT(log_, segment_hash_map_.find(hash) == segment_hash_map_.end());
+        uint8_t *data = new uint8_t[XCODEC_SEGMENT_LENGTH];
+        buf.copyout(data, off, XCODEC_SEGMENT_LENGTH);
+        segment_hash_map_[hash] = data;
+    }
 
-	bool lookup (const uint64_t& hash, Buffer& buf)
-	{
+    bool lookup(const uint64_t &hash, Buffer &buf) {
 #ifdef USING_XCODEC_CACHE_RECENT_WINDOW
-		const uint8_t* data;
-		if ((data = find_recent (hash)))
-		{
-			buf.append (data, XCODEC_SEGMENT_LENGTH);
-			return true;
-		}
+        const uint8_t *data;
+        if ((data = find_recent(hash))) {
+            buf.append(data, XCODEC_SEGMENT_LENGTH);
+            return true;
+        }
 #endif
-		segment_hash_map_t::const_iterator it = segment_hash_map_.find (hash);
-		if (it != segment_hash_map_.end ())
-		{
-			buf.append (it->second, XCODEC_SEGMENT_LENGTH);
+        segment_hash_map_t::const_iterator it = segment_hash_map_.find(hash);
+        if (it != segment_hash_map_.end()) {
+            buf.append(it->second, XCODEC_SEGMENT_LENGTH);
 #ifdef USING_XCODEC_CACHE_RECENT_WINDOW
-			remember (hash, it->second);
+            remember(hash, it->second);
 #endif
-			return true;
-		}
-		return false;
-	}
+            return true;
+        }
+        return false;
+    }
 };
 
 #endif /* !XCODEC_XCODEC_CACHE_H */

@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	EVENT_OBJECT_CALLBACK_H
-#define	EVENT_OBJECT_CALLBACK_H
+#ifndef EVENT_OBJECT_CALLBACK_H
+#define EVENT_OBJECT_CALLBACK_H
 
 #include <event/callback.h>
 
@@ -41,67 +41,61 @@
 template<class C>
 class ObjectMethodCallback : public Callback {
 public:
-	typedef void (C::*const method_t)(void);
+    typedef void (C::*const method_t)(void);
 
 private:
-	C *const obj_;
-	method_t method_;
+    C *const obj_;
+    method_t method_;
+
 public:
-	template<typename T>
-	ObjectMethodCallback(C *obj, T method)
-	: Callback(),
-	  obj_(obj),
-	  method_(method)
-	{ }
+    template<typename T>
+    ObjectMethodCallback(C *obj, T method)
+        : Callback(),
+          obj_(obj),
+          method_(method) {}
 
-	~ObjectMethodCallback()
-	{ }
+    ~ObjectMethodCallback() {}
 
-	virtual void execute ()
-	{
-		(obj_->*method_)();
-	}
+    virtual void execute() {
+        (obj_->*method_)();
+    }
 };
 
 template<class C, typename A>
 class ObjectMethodArgCallback : public Callback {
 public:
-	typedef void (C::*const method_t)(A);
+    typedef void (C::*const method_t)(A);
 
 private:
-	C *const obj_;
-	method_t method_;
-	A arg_;
+    C *const obj_;
+    method_t method_;
+    A arg_;
+
 public:
-	template<typename Tm>
-	ObjectMethodArgCallback(C *obj, Tm method, A arg)
-	: Callback(),
-	  obj_(obj),
-	  method_(method),
-	  arg_(arg)
-	{ }
+    template<typename Tm>
+    ObjectMethodArgCallback(C *obj, Tm method, A arg)
+        : Callback(),
+          obj_(obj),
+          method_(method),
+          arg_(arg) {}
 
-	~ObjectMethodArgCallback()
-	{ }
+    ~ObjectMethodArgCallback() {}
 
-	virtual void execute ()
-	{
-		(obj_->*method_)(arg_);
-	}
+    virtual void execute() {
+        (obj_->*method_)(arg_);
+    }
 };
 
 template<class C>
-Callback *callback(C *obj, typename ObjectMethodCallback<C>::method_t method)
-{
-	Callback *cb = new ObjectMethodCallback<C>(obj, method);
-	return (cb);
+Callback *callback(C *obj, typename ObjectMethodCallback<C>::method_t method) {
+    Callback *cb = new ObjectMethodCallback<C>(obj, method);
+    return (cb);
 }
 
 template<class C, typename A>
-Callback *callback(C *obj, void (C::*const method)(A), A arg)
-{
-	Callback *cb = new ObjectMethodArgCallback<C, A>(obj, method, arg);
-	return (cb);
+Callback *callback(C *obj, void (C::*const method)(A), A arg) {
+    Callback *cb = new ObjectMethodArgCallback<C, A>(obj, method, arg);
+    return (cb);
 }
 
 #endif /* !EVENT_OBJECT_CALLBACK_H */

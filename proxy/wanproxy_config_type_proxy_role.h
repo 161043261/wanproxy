@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_PROXY_ROLE_H
-#define	PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_PROXY_ROLE_H
+#ifndef PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_PROXY_ROLE_H
+#define PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_PROXY_ROLE_H
 
 #include <config/config_type_enum.h>
 
@@ -39,9 +39,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 enum WANProxyConfigProxyRole {
-	WANProxyConfigProxyRoleUndefined,
-	WANProxyConfigProxyRoleClient,
-	WANProxyConfigProxyRoleServer
+    WANProxyConfigProxyRoleUndefined,
+    WANProxyConfigProxyRoleClient,
+    WANProxyConfigProxyRoleServer
 };
 
 typedef ConfigTypeEnum<WANProxyConfigProxyRole> WANProxyConfigTypeProxyRole;

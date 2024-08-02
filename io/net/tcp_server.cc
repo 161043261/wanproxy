@@ -35,30 +35,25 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-bool TCPServer::listen (SocketAddressFamily family, const std::string& name)
-{
-	if (socket_)
-	{
-		socket_->close (0);
-		delete socket_;
-	}
-	
-	socket_ = Socket::create (family, SocketTypeStream, "tcp", name);
-	if (! socket_) 
-	{
-		ERROR("/tcp/server") << "Unable to create socket.";
-		return false;
-	}
-	if (! socket_->bind (name)) 
-	{
-		ERROR("/tcp/server") << "Socket bind failed";
-		return false;
-	}
-	if (! socket_->listen ()) 
-	{
-		ERROR("/tcp/server") << "Socket listen failed";
-		return false;
-	}
-	
-	return true;
+bool TCPServer::listen(SocketAddressFamily family, const std::string &name) {
+    if (socket_) {
+        socket_->close(0);
+        delete socket_;
+    }
+
+    socket_ = Socket::create(family, SocketTypeStream, "tcp", name);
+    if (!socket_) {
+        ERROR("/tcp/server") << "Unable to create socket.";
+        return false;
+    }
+    if (!socket_->bind(name)) {
+        ERROR("/tcp/server") << "Socket bind failed";
+        return false;
+    }
+    if (!socket_->listen()) {
+        ERROR("/tcp/server") << "Socket listen failed";
+        return false;
+    }
+
+    return true;
 }

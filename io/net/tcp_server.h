@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	IO_NET_TCP_SERVER_H
-#define	IO_NET_TCP_SERVER_H
+#ifndef IO_NET_TCP_SERVER_H
+#define IO_NET_TCP_SERVER_H
 
 #include <io/socket/socket.h>
 
@@ -38,36 +38,30 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class TCPServer 
-{
-	LogHandle log_;
-	Socket* socket_;
+class TCPServer {
+    LogHandle log_;
+    Socket *socket_;
 
 public:
-	TCPServer () : log_("/tcp/server"), socket_(0)
-	{ }
+    TCPServer() : log_("/tcp/server"), socket_(0) {}
 
-	~TCPServer ()
-	{
-		delete socket_;
-	}
+    ~TCPServer() {
+        delete socket_;
+    }
 
-	bool listen (SocketAddressFamily family, const std::string& name);
-	
-	Action* accept (SocketEventCallback* cb)
-	{
-		return (socket_ ? socket_->accept (cb) : 0);
-	}
+    bool listen(SocketAddressFamily family, const std::string &name);
 
-	Action* close (EventCallback* cb = 0)
-	{
-		return (socket_ ? socket_->close (cb) : 0);
-	}
+    Action *accept(SocketEventCallback *cb) {
+        return (socket_ ? socket_->accept(cb) : 0);
+    }
 
-	std::string getsockname () const
-	{
-		return (socket_ ? socket_->getsockname () : std::string ());
-	}
+    Action *close(EventCallback *cb = 0) {
+        return (socket_ ? socket_->close(cb) : 0);
+    }
+
+    std::string getsockname() const {
+        return (socket_ ? socket_->getsockname() : std::string());
+    }
 };
 
 #endif /* !IO_NET_TCP_SERVER_H */

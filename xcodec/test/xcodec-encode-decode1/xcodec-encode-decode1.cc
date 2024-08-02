@@ -32,77 +32,75 @@
 #include <xcodec/xcodec_decoder.h>
 #include <xcodec/xcodec_encoder.h>
 
-int
-main(void)
-{
-	{
-		TestGroup g("/test/xcodec/encode-decode/1/char_kat", "XCodecEncoder::encode / XCodecDecoder::decode #1");
+int main(void) {
+    {
+        TestGroup g("/test/xcodec/encode-decode/1/char_kat", "XCodecEncoder::encode / XCodecDecoder::decode #1");
 
-		unsigned i;
-		for (i = 0; i < 256; i++) {
-			Buffer in;
-			unsigned j;
-			for (j = 0; j < XCODEC_SEGMENT_LENGTH; j++)
-				in.append((uint8_t)i);
+        unsigned i;
+        for (i = 0; i < 256; i++) {
+            Buffer in;
+            unsigned j;
+            for (j = 0; j < XCODEC_SEGMENT_LENGTH; j++)
+                in.append((uint8_t) i);
 
-			for (j = 0; j < 8; j++) {
-				Buffer tmp(in);
-				tmp.append(in);
-				in = tmp;
-			}
+            for (j = 0; j < 8; j++) {
+                Buffer tmp(in);
+                tmp.append(in);
+                in = tmp;
+            }
 
-			Buffer original(in);
+            Buffer original(in);
 
-			UUID uuid;
-			uuid.generate();
+            UUID uuid;
+            uuid.generate();
 
-			XCodecCache *cache = new XCodecMemoryCache(uuid);
-			XCodecEncoder encoder(cache);
+            XCodecCache *cache = new XCodecMemoryCache(uuid);
+            XCodecEncoder encoder(cache);
 
-			Buffer out;
-			encoder.encode(&out, &in);
+            Buffer out;
+            encoder.encode(&out, &in);
 
-			{
-				Test _(g, "Empty input buffer after encode.", in.empty());
-			}
+            {
+                Test _(g, "Empty input buffer after encode.", in.empty());
+            }
 
-			{
-				Test _(g, "Non-empty output buffer after encode.", !out.empty());
-			}
+            {
+                Test _(g, "Non-empty output buffer after encode.", !out.empty());
+            }
 
-			{
-				Test _(g, "Reduction in size.", out.length() < original.length());
-			}
+            {
+                Test _(g, "Reduction in size.", out.length() < original.length());
+            }
 
-			out.moveout(&in);
+            out.moveout(&in);
 
-			XCodecDecoder decoder(cache);
-			std::set<uint64_t> unknown_hashes;
+            XCodecDecoder decoder(cache);
+            std::set<uint64_t> unknown_hashes;
 
-			bool ok = decoder.decode(&out, &in, unknown_hashes);
-			{
-				Test _(g, "Decoder success.", ok);
-			}
+            bool ok = decoder.decode(&out, &in, unknown_hashes);
+            {
+                Test _(g, "Decoder success.", ok);
+            }
 
-			{
-				Test _(g, "No unknown hashes.", unknown_hashes.empty());
-			}
+            {
+                Test _(g, "No unknown hashes.", unknown_hashes.empty());
+            }
 
-			{
-				Test _(g, "Empty input buffer after decode.", in.empty());
-			}
+            {
+                Test _(g, "Empty input buffer after decode.", in.empty());
+            }
 
-			{
-				Test _(g, "Non-empty output buffer after decode.", !out.empty());
-			}
+            {
+                Test _(g, "Non-empty output buffer after decode.", !out.empty());
+            }
 
-			{
-				Test _(g, "Expected data.", out.equal(&original));
-			}
+            {
+                Test _(g, "Expected data.", out.equal(&original));
+            }
 
-			delete cache;
-		}
-	}
+            delete cache;
+        }
+    }
 
-	return (0);
+    return (0);
 }

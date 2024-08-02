@@ -23,83 +23,76 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	COMMON_TIME_TIME_H
-#define	COMMON_TIME_TIME_H
+#ifndef COMMON_TIME_TIME_H
+#define COMMON_TIME_TIME_H
 
 #include <map>
 
 struct NanoTime {
-	uintmax_t seconds_;
-	uintmax_t nanoseconds_;
+    uintmax_t seconds_;
+    uintmax_t nanoseconds_;
 
-	NanoTime(void)
-	: seconds_(0),
-	  nanoseconds_(0)
-	{ }
+    NanoTime(void)
+        : seconds_(0),
+          nanoseconds_(0) {}
 
-	NanoTime(const NanoTime& src)
-	: seconds_(src.seconds_),
-	  nanoseconds_(src.nanoseconds_)
-	{ }
+    NanoTime(const NanoTime &src)
+        : seconds_(src.seconds_),
+          nanoseconds_(src.nanoseconds_) {}
 
-	bool operator< (const NanoTime& b) const
-	{
-		if (seconds_ == b.seconds_)
-			return (nanoseconds_ < b.nanoseconds_);
-		return (seconds_ < b.seconds_);
-	}
+    bool operator<(const NanoTime &b) const {
+        if (seconds_ == b.seconds_)
+            return (nanoseconds_ < b.nanoseconds_);
+        return (seconds_ < b.seconds_);
+    }
 
-	bool operator> (const NanoTime& b) const
-	{
-		if (seconds_ == b.seconds_)
-			return (nanoseconds_ > b.nanoseconds_);
-		return (seconds_ > b.seconds_);
-	}
+    bool operator>(const NanoTime &b) const {
+        if (seconds_ == b.seconds_)
+            return (nanoseconds_ > b.nanoseconds_);
+        return (seconds_ > b.seconds_);
+    }
 
-	bool operator<= (const NanoTime& b) const
-	{
-		if (seconds_ == b.seconds_)
-			return (nanoseconds_ <= b.nanoseconds_);
-		return (seconds_ <= b.seconds_);
-	}
+    bool operator<=(const NanoTime &b) const {
+        if (seconds_ == b.seconds_)
+            return (nanoseconds_ <= b.nanoseconds_);
+        return (seconds_ <= b.seconds_);
+    }
 
-	bool operator>= (const NanoTime& b) const
-	{
-		if (seconds_ == b.seconds_)
-			return (nanoseconds_ >= b.nanoseconds_);
-		return (seconds_ >= b.seconds_);
-	}
+    bool operator>=(const NanoTime &b) const {
+        if (seconds_ == b.seconds_)
+            return (nanoseconds_ >= b.nanoseconds_);
+        return (seconds_ >= b.seconds_);
+    }
 
-	NanoTime& operator+= (const NanoTime& b)
-	{
-		seconds_ += b.seconds_;
-		nanoseconds_ += b.nanoseconds_;
+    NanoTime &operator+=(const NanoTime &b) {
+        seconds_ += b.seconds_;
+        nanoseconds_ += b.nanoseconds_;
 
-		if (nanoseconds_ >= 1000000000) {
-			seconds_++;
-			nanoseconds_ -= 1000000000;
-		}
+        if (nanoseconds_ >= 1000000000) {
+            seconds_++;
+            nanoseconds_ -= 1000000000;
+        }
 
-		return (*this);
-	}
+        return (*this);
+    }
 
-	NanoTime& operator-= (const NanoTime& b)
-	{
-		ASSERT("/nano/time", *this >= b);
+    NanoTime &operator-=(const NanoTime &b) {
+        ASSERT("/nano/time", *this >= b);
 
-		if (nanoseconds_ < b.nanoseconds_) {
-			nanoseconds_ += 1000000000;
-			seconds_ -= 1;
-		}
+        if (nanoseconds_ < b.nanoseconds_) {
+            nanoseconds_ += 1000000000;
+            seconds_ -= 1;
+        }
 
-		seconds_ -= b.seconds_;
-		nanoseconds_ -= b.nanoseconds_;
+        seconds_ -= b.seconds_;
+        nanoseconds_ -= b.nanoseconds_;
 
-		return (*this);
-	}
+        return (*this);
+    }
 
-	static NanoTime current_time(void);
-	static void sleep(int ms);
+    static NanoTime current_time(void);
+
+    static void sleep(int ms);
 };
 
 #endif /* !COMMON_TIME_TIME_H */

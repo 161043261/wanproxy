@@ -23,12 +23,12 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	CRYPTO_CRYPTO_MAC_H
-#define	CRYPTO_CRYPTO_MAC_H
+#ifndef CRYPTO_CRYPTO_MAC_H
+#define CRYPTO_CRYPTO_MAC_H
 
-#include <set>
 #include <event/action.h>
 #include <event/event_callback.h>
+#include <set>
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -41,51 +41,50 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CryptoMAC {
-	class Method;
+    class Method;
 
-	enum Algorithm {
-		MD5,
-		SHA1,
-		SHA256,
-		SHA512,
-		RIPEMD160,
-	};
+    enum Algorithm {
+        MD5,
+        SHA1,
+        SHA256,
+        SHA512,
+        RIPEMD160,
+    };
 
-	class Instance {
-	protected:
-		Instance(void)
-		{ }
+    class Instance {
+    protected:
+        Instance(void) {}
 
-	public:
-		virtual ~Instance()
-		{ }
+    public:
+        virtual ~Instance() {}
 
-		virtual unsigned size(void) const = 0;
+        virtual unsigned size(void) const = 0;
 
-		virtual Instance *clone(void) const = 0;
+        virtual Instance *clone(void) const = 0;
 
-		virtual bool initialize(const Buffer * = NULL) = 0;
+        virtual bool initialize(const Buffer * = NULL) = 0;
 
-		virtual bool mac(Buffer *, const Buffer *) = 0;
+        virtual bool mac(Buffer *, const Buffer *) = 0;
 
-		//virtual Action *submit(Buffer *, EventCallback *) = 0;
-	};
+        //virtual Action *submit(Buffer *, EventCallback *) = 0;
+    };
 
-	class Method {
-		std::string name_;
-	protected:
-		Method(const std::string&);
+    class Method {
+        std::string name_;
 
-		virtual ~Method()
-		{ }
-	public:
-		virtual std::set<Algorithm> algorithms(void) const = 0;
-		virtual Instance *instance(Algorithm) const = 0;
+    protected:
+        Method(const std::string &);
 
-		static const Method *method(Algorithm);
-	};
-}
+        virtual ~Method() {}
 
-std::ostream& operator<< (std::ostream&, CryptoMAC::Algorithm);
+    public:
+        virtual std::set<Algorithm> algorithms(void) const = 0;
+        virtual Instance *instance(Algorithm) const = 0;
+
+        static const Method *method(Algorithm);
+    };
+}// namespace CryptoMAC
+
+std::ostream &operator<<(std::ostream &, CryptoMAC::Algorithm);
 
 #endif /* !CRYPTO_CRYPTO_MAC_H */

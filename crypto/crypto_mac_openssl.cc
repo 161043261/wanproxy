@@ -40,66 +40,61 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace {
-	class InstanceEVP : public CryptoMAC::Instance {
-		LogHandle log_;
-		const EVP_MD *algorithm_;
-		uint8_t key_[EVP_MAX_KEY_LENGTH];
-		size_t key_length_;
-	public:
-		InstanceEVP(const EVP_MD *algorithm)
-		: log_("/crypto/mac/instance/openssl"),
-		  algorithm_(algorithm),
-		  key_(),
-		  key_length_(0)
-		{ }
+    class InstanceEVP : public CryptoMAC::Instance {
+        LogHandle log_;
+        const EVP_MD *algorithm_;
+        uint8_t key_[EVP_MAX_KEY_LENGTH];
+        size_t key_length_;
 
-		~InstanceEVP()
-		{ }
+    public:
+        InstanceEVP(const EVP_MD *algorithm)
+            : log_("/crypto/mac/instance/openssl"),
+              algorithm_(algorithm),
+              key_(),
+              key_length_(0) {}
 
-		unsigned size(void) const
-		{
-			return (EVP_MD_size(algorithm_));
-		}
+        ~InstanceEVP() {}
 
-		Instance *clone(void) const
-		{
-			ASSERT(log_, key_length_ == 0);
-			return (new InstanceEVP(algorithm_));
-		}
+        unsigned size(void) const {
+            return (EVP_MD_size(algorithm_));
+        }
 
-		bool initialize(const Buffer *key)
-		{
-			if (key->length() > EVP_MAX_KEY_LENGTH)
-				return (false);
+        Instance *clone(void) const {
+            ASSERT(log_, key_length_ == 0);
+            return (new InstanceEVP(algorithm_));
+        }
 
-			key->copyout(key_, key->length());
-			key_length_ = key->length();
+        bool initialize(const Buffer *key) {
+            if (key->length() > EVP_MAX_KEY_LENGTH)
+                return (false);
 
-			return (true);
-		}
+            key->copyout(key_, key->length());
+            key_length_ = key->length();
 
-		bool mac(Buffer *out, const Buffer *in)
-		{
-			/*
+            return (true);
+        }
+
+        bool mac(Buffer *out, const Buffer *in) {
+            /*
 			 * We process a single, large, linear byte buffer here rather
 			 * than going a BufferSegment at a time, even though the byte
 			 * buffer is less efficient than some alternatives, because
 			 * there are padding and buffering implications if each
 			 * BufferSegment's length is not modular to the block size.
 			 */
-			uint8_t indata[in->length()];
-			in->copyout(indata, sizeof indata);
+            uint8_t indata[in->length()];
+            in->copyout(indata, sizeof indata);
 
-			uint8_t macdata[EVP_MD_size(algorithm_)];
-			unsigned maclen;
-			if (HMAC(algorithm_, key_, key_length_, indata, sizeof indata, macdata, &maclen) == NULL)
-				return (false);
-			ASSERT(log_, maclen == sizeof macdata);
-			out->append(macdata, maclen);
-			return (true);
-		}
+            uint8_t macdata[EVP_MD_size(algorithm_)];
+            unsigned maclen;
+            if (HMAC(algorithm_, key_, key_length_, indata, sizeof indata, macdata, &maclen) == NULL)
+                return (false);
+            ASSERT(log_, maclen == sizeof macdata);
+            out->append(macdata, maclen);
+            return (true);
+        }
 
-		/*
+        /*
 		Action *submit(Buffer *in, EventCallback *cb)
 		{
 			Buffer out;
@@ -113,44 +108,41 @@ namespace {
 			return (cb->schedule());
 		}
 		*/
-	};
+    };
 
-	class MethodOpenSSL : public CryptoMAC::Method {
-		LogHandle log_;
-		FactoryMap<CryptoMAC::Algorithm, CryptoMAC::Instance> algorithm_map_;
-	public:
-		MethodOpenSSL(void)
-		: CryptoMAC::Method("OpenSSL"),
-		  log_("/crypto/mac/openssl"),
-		  algorithm_map_()
-		{
-			OpenSSL_add_all_algorithms();
+    class MethodOpenSSL : public CryptoMAC::Method {
+        LogHandle log_;
+        FactoryMap<CryptoMAC::Algorithm, CryptoMAC::Instance> algorithm_map_;
 
-			factory<InstanceEVP> evp_factory;
-			algorithm_map_.enter(CryptoMAC::MD5, evp_factory(EVP_md5()));
-			algorithm_map_.enter(CryptoMAC::SHA1, evp_factory(EVP_sha1()));
-			algorithm_map_.enter(CryptoMAC::SHA256, evp_factory(EVP_sha256()));
-			algorithm_map_.enter(CryptoMAC::SHA512, evp_factory(EVP_sha512()));
-			algorithm_map_.enter(CryptoMAC::RIPEMD160, evp_factory(EVP_ripemd160()));
+    public:
+        MethodOpenSSL(void)
+            : CryptoMAC::Method("OpenSSL"),
+              log_("/crypto/mac/openssl"),
+              algorithm_map_() {
+            OpenSSL_add_all_algorithms();
 
-			/* XXX Register.  */
-		}
+            factory<InstanceEVP> evp_factory;
+            algorithm_map_.enter(CryptoMAC::MD5, evp_factory(EVP_md5()));
+            algorithm_map_.enter(CryptoMAC::SHA1, evp_factory(EVP_sha1()));
+            algorithm_map_.enter(CryptoMAC::SHA256, evp_factory(EVP_sha256()));
+            algorithm_map_.enter(CryptoMAC::SHA512, evp_factory(EVP_sha512()));
+            algorithm_map_.enter(CryptoMAC::RIPEMD160, evp_factory(EVP_ripemd160()));
 
-		~MethodOpenSSL()
-		{
-			/* XXX Unregister.  */
-		}
+            /* XXX Register.  */
+        }
 
-		std::set<CryptoMAC::Algorithm> algorithms(void) const
-		{
-			return (algorithm_map_.keys());
-		}
+        ~MethodOpenSSL() {
+            /* XXX Unregister.  */
+        }
 
-		CryptoMAC::Instance *instance(CryptoMAC::Algorithm algorithm) const
-		{
-			return (algorithm_map_.create(algorithm));
-		}
-	};
+        std::set<CryptoMAC::Algorithm> algorithms(void) const {
+            return (algorithm_map_.keys());
+        }
 
-	static MethodOpenSSL crypto_mac_method_openssl;
-}
+        CryptoMAC::Instance *instance(CryptoMAC::Algorithm algorithm) const {
+            return (algorithm_map_.create(algorithm));
+        }
+    };
+
+    static MethodOpenSSL crypto_mac_method_openssl;
+}// namespace

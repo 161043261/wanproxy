@@ -23,34 +23,32 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	SSH_SSH_COMPRESSION_H
-#define	SSH_SSH_COMPRESSION_H
+#ifndef SSH_SSH_COMPRESSION_H
+#define SSH_SSH_COMPRESSION_H
 
 class Buffer;
 
 namespace SSH {
-	class Compression {
-		std::string name_;
-	protected:
-		Compression(const std::string& xname)
-		: name_(xname)
-		{ }
+    class Compression {
+        std::string name_;
 
-	public:
-		virtual ~Compression()
-		{ }
+    protected:
+        Compression(const std::string &xname)
+            : name_(xname) {}
 
-		std::string name(void) const
-		{
-			return (name_);
-		}
+    public:
+        virtual ~Compression() {}
 
-		virtual Compression *clone(void) const = 0;
+        std::string name(void) const {
+            return (name_);
+        }
 
-		virtual bool input(Buffer *) = 0;
+        virtual Compression *clone(void) const = 0;
 
-		static Compression *none(void);
-	};
-}
+        virtual bool input(Buffer *) = 0;
+
+        static Compression *none(void);
+    };
+}// namespace SSH
 
 #endif /* !SSH_SSH_COMPRESSION_H */

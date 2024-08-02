@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	EVENT_TYPED_CALLBACK_H
-#define	EVENT_TYPED_CALLBACK_H
+#ifndef EVENT_TYPED_CALLBACK_H
+#define EVENT_TYPED_CALLBACK_H
 
 #include <event/callback.h>
 
@@ -41,98 +41,87 @@
 template<typename T>
 class TypedCallback : public Callback {
 protected:
-	T param_;
-	
+    T param_;
+
 protected:
-	TypedCallback()
-	: Callback(),
-	  param_()
-	{ }
+    TypedCallback()
+        : Callback(),
+          param_() {}
 
 public:
-	virtual ~TypedCallback()
-	{ }
+    virtual ~TypedCallback() {}
 
-	void param(T p)
-	{
-		param_ = p;
-	}
+    void param(T p) {
+        param_ = p;
+    }
 
-	T& param()
-	{
-		return param_;
-	}
+    T &param() {
+        return param_;
+    }
 
-	void reset(void)
-	{
-		param_ = T();
-	}
+    void reset(void) {
+        param_ = T();
+    }
 };
 
 template<typename T, class C>
 class ObjectTypedCallback : public TypedCallback<T> {
 public:
-	typedef void (C::*const method_t)(T);
+    typedef void (C::*const method_t)(T);
 
 private:
-	C *const obj_;
-	method_t method_;
+    C *const obj_;
+    method_t method_;
+
 public:
-	template<typename Tm>
-	ObjectTypedCallback(C *obj, Tm method)
-	: TypedCallback<T>(),
-	  obj_(obj),
-	  method_(method)
-	{ }
+    template<typename Tm>
+    ObjectTypedCallback(C *obj, Tm method)
+        : TypedCallback<T>(),
+          obj_(obj),
+          method_(method) {}
 
-	~ObjectTypedCallback()
-	{ }
+    ~ObjectTypedCallback() {}
 
-	virtual void execute ()
-	{
-		(obj_->*method_)(TypedCallback<T>::param_);
-	}
+    virtual void execute() {
+        (obj_->*method_)(TypedCallback<T>::param_);
+    }
 };
 
 template<typename T, class C, typename A>
 class ObjectTypedArgCallback : public TypedCallback<T> {
 public:
-	typedef void (C::*const method_t)(T, A);
+    typedef void (C::*const method_t)(T, A);
 
 private:
-	C *const obj_;
-	method_t method_;
-	A arg_;
+    C *const obj_;
+    method_t method_;
+    A arg_;
+
 public:
-	template<typename Tm>
-	ObjectTypedArgCallback(C *obj, Tm method, A arg)
-	: TypedCallback<T>(),
-	  obj_(obj),
-	  method_(method),
-	  arg_(arg)
-	{ }
+    template<typename Tm>
+    ObjectTypedArgCallback(C *obj, Tm method, A arg)
+        : TypedCallback<T>(),
+          obj_(obj),
+          method_(method),
+          arg_(arg) {}
 
-	~ObjectTypedArgCallback()
-	{ }
+    ~ObjectTypedArgCallback() {}
 
-	virtual void execute ()
-	{
-		(obj_->*method_)(TypedCallback<T>::param_, arg_);
-	}
+    virtual void execute() {
+        (obj_->*method_)(TypedCallback<T>::param_, arg_);
+    }
 };
 
 template<typename T, class C>
-TypedCallback<T> *callback(C *obj, void (C::*const method)(T))
-{
-	TypedCallback<T> *cb = new ObjectTypedCallback<T, C>(obj, method);
-	return (cb);
+TypedCallback<T> *callback(C *obj, void (C::*const method)(T)) {
+    TypedCallback<T> *cb = new ObjectTypedCallback<T, C>(obj, method);
+    return (cb);
 }
 
 template<typename T, class C, typename A>
-TypedCallback<T> *callback(C *obj, void (C::*const method)(T, A), A arg)
-{
-	TypedCallback<T> *cb = new ObjectTypedArgCallback<T, C, A>(obj, method, arg);
-	return (cb);
+TypedCallback<T> *callback(C *obj, void (C::*const method)(T, A), A arg) {
+    TypedCallback<T> *cb = new ObjectTypedArgCallback<T, C, A>(obj, method, arg);
+    return (cb);
 }
 
 #endif /* !EVENT_TYPED_CALLBACK_H */

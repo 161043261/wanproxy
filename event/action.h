@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	EVENT_ACTION_H
-#define	EVENT_ACTION_H
+#ifndef EVENT_ACTION_H
+#define EVENT_ACTION_H
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -36,56 +36,49 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class Action 
-{
+class Action {
 protected:
-	bool cancelled_;
-	
-	Action () : cancelled_(false)
-	{ 
-	}
-	
-public:
-	virtual ~Action ()
-	{
-		ASSERT("/action", cancelled_);
-	}
+    bool cancelled_;
 
-	virtual void cancel () = 0;
-	
-	bool is_cancelled ()
-	{
-		return cancelled_;
-	}
+    Action() : cancelled_(false) {
+    }
+
+public:
+    virtual ~Action() {
+        ASSERT("/action", cancelled_);
+    }
+
+    virtual void cancel() = 0;
+
+    bool is_cancelled() {
+        return cancelled_;
+    }
 };
 
 
-template<class S, class C> class CallbackAction : public Action
-{
-	typedef void (S::*const method_t)(void);
+template<class S, class C>
+class CallbackAction : public Action {
+    typedef void (S::*const method_t)(void);
 
 public:
-	S* const obj_;
-	method_t method_;
-	C* callback_;
-	
+    S *const obj_;
+    method_t method_;
+    C *callback_;
+
 public:
-	CallbackAction (S* obj, method_t method, C* cb)	: obj_(obj), method_(method)
-	{ 
-		ASSERT("/action", obj && method);
-		callback_ = cb;
-	}
+    CallbackAction(S *obj, method_t method, C *cb) : obj_(obj), method_(method) {
+        ASSERT("/action", obj && method);
+        callback_ = cb;
+    }
 
-	~CallbackAction()
-	{
-		delete callback_;
-	}
+    ~CallbackAction() {
+        delete callback_;
+    }
 
-	virtual void cancel ()
-	{
-		cancelled_ = true;
-		(obj_->*method_) ();
-	}
+    virtual void cancel() {
+        cancelled_ = true;
+        (obj_->*method_)();
+    }
 };
 
 #endif /* !EVENT_ACTION_H */

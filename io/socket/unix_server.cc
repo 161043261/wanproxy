@@ -35,30 +35,25 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-bool UnixServer::listen (const std::string& name)
-{
-	if (socket_)
-	{
-		socket_->close (0);
-		delete socket_;
-	}
-	
-	socket_ = Socket::create (SocketAddressFamilyUnix, SocketTypeStream);
-	if (! socket_) 
-	{
-		ERROR("/unix/server") << "Unable to create socket.";
-		return false;
-	}
-	if (! socket_->bind (name)) 
-	{
-		ERROR("/unix/server") << "Socket bind failed";
-		return false;
-	}
-	if (! socket_->listen ()) 
-	{
-		ERROR("/unix/server") << "Socket listen failed";
-		return false;
-	}
-	
-	return true;
+bool UnixServer::listen(const std::string &name) {
+    if (socket_) {
+        socket_->close(0);
+        delete socket_;
+    }
+
+    socket_ = Socket::create(SocketAddressFamilyUnix, SocketTypeStream);
+    if (!socket_) {
+        ERROR("/unix/server") << "Unable to create socket.";
+        return false;
+    }
+    if (!socket_->bind(name)) {
+        ERROR("/unix/server") << "Socket bind failed";
+        return false;
+    }
+    if (!socket_->listen()) {
+        ERROR("/unix/server") << "Socket listen failed";
+        return false;
+    }
+
+    return true;
 }
