@@ -17,7 +17,8 @@ This version has been originated, sponsored and advised by XTech.
 
 
 ```sh
-make
+# make clean
+make # NDEBUG=1
 cd proxy/bin
 # server
 ./wanproxy -c ../wanproxy.server.conf
