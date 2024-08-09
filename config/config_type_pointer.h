@@ -23,25 +23,23 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	CONFIG_CONFIG_TYPE_POINTER_H
-#define	CONFIG_CONFIG_TYPE_POINTER_H
+#ifndef    CONFIG_CONFIG_TYPE_POINTER_H
+#define    CONFIG_CONFIG_TYPE_POINTER_H
 
 #include <map>
 
-#include <config/config_type.h>
+#include "./config_type.h"
 
 class ConfigTypePointer : public ConfigType {
 public:
-	ConfigTypePointer(void)
-	: ConfigType("pointer")
-	{ }
+    ConfigTypePointer(void)
+            : ConfigType("pointer") {}
 
-	~ConfigTypePointer()
-	{ }
+    ~ConfigTypePointer() {}
 
-	void marshall(ConfigExporter *, ConfigObject *const *) const;
+    void marshall(ConfigExporter *, ConfigObject *const *) const;
 
-	bool set(ConfigObject *, const std::string&, ConfigObject **);
+    bool set(ConfigObject *, const std::string &, ConfigObject **);
 };
 
 extern ConfigTypePointer config_type_pointer;

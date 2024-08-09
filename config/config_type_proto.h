@@ -1,12 +1,12 @@
-#ifndef	CONFIG_CONFIG_TYPE_PROTO_H
-#define	CONFIG_CONFIG_TYPE_PROTO_H
+#ifndef    CONFIG_CONFIG_TYPE_PROTO_H
+#define    CONFIG_CONFIG_TYPE_PROTO_H
 
-#include <config/config_type_enum.h>
+#include "./config_type_enum.h"
 
 enum ConfigProto {
-	ConfigProtoTCP,
-	ConfigProtoTCPPool,
-	ConfigProtoNone,
+    ConfigProtoTCP,
+    ConfigProtoTCPPool,
+    ConfigProtoNone,
 };
 
 typedef ConfigTypeEnum<ConfigProto> ConfigTypeProto;

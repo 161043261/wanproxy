@@ -23,25 +23,23 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	CONFIG_CONFIG_TYPE_INT_H
-#define	CONFIG_CONFIG_TYPE_INT_H
+#ifndef    CONFIG_CONFIG_TYPE_INT_H
+#define    CONFIG_CONFIG_TYPE_INT_H
 
 #include <map>
 
-#include <config/config_type.h>
+#include "./config_type.h"
 
 class ConfigTypeInt : public ConfigType {
 public:
-	ConfigTypeInt(void)
-	: ConfigType("int")
-	{ }
+    ConfigTypeInt(void)
+            : ConfigType("int") {}
 
-	~ConfigTypeInt()
-	{ }
+    ~ConfigTypeInt() {}
 
-	void marshall(ConfigExporter *, const intmax_t *) const;
+    void marshall(ConfigExporter *, const intmax_t *) const;
 
-	bool set(ConfigObject *, const std::string&, intmax_t *);
+    bool set(ConfigObject *, const std::string &, intmax_t *);
 };
 
 extern ConfigTypeInt config_type_int;

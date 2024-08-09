@@ -23,11 +23,11 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	CONFIG_CONFIG_OBJECT_H
-#define	CONFIG_CONFIG_OBJECT_H
+#ifndef    CONFIG_CONFIG_OBJECT_H
+#define    CONFIG_CONFIG_OBJECT_H
 
-#include <config/config_class.h>
-#include <config/config_exporter.h>
+#include "./config_class.h"
+#include "./config_exporter.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -42,64 +42,59 @@
 class Config;
 
 struct ConfigObject {
-	Config *config_;
-	std::string name_;
-	const ConfigClass *class_;
-	ConfigClassInstance *instance_;
+    Config *config_;
+    std::string name_;
+    const ConfigClass *class_;
+    ConfigClassInstance *instance_;
 
-	ConfigObject(Config *config, const std::string& name, const ConfigClass *cc, ConfigClassInstance *inst)
-	: config_(config),
-	  name_(name),
-	  class_(cc),
-	  instance_(inst)
-	{ }
+    ConfigObject(Config *config, const std::string &name, const ConfigClass *cc, ConfigClassInstance *inst)
+            : config_(config),
+              name_(name),
+              class_(cc),
+              instance_(inst) {}
 
-	virtual ~ConfigObject()
-	{
-		delete instance_;
-	}
+    virtual ~ConfigObject() {
+        delete instance_;
+    }
 
-	bool activate(void) const;
-	void marshall(ConfigExporter *) const;
-	bool set(const std::string&, const std::string&);
+    bool activate(void) const;
+
+    void marshall(ConfigExporter *) const;
+
+    bool set(const std::string &, const std::string &);
 };
 
 template<typename Tc, typename Tf, typename Ti>
-void ConfigClass::add_member(const std::string& mname, Tc type, Tf Ti::*fieldp)
-{
-	struct TypedConfigClassMember : public ConfigClassMember {
-		Tc config_type_;
-		Tf Ti::*config_field_;
+void ConfigClass::add_member(const std::string &mname, Tc type, Tf Ti::*fieldp) {
+    struct TypedConfigClassMember : public ConfigClassMember {
+        Tc config_type_;
+        Tf Ti::*config_field_;
 
-		TypedConfigClassMember(Tc config_type, Tf Ti::*config_field)
-		: config_type_(config_type),
-		  config_field_(config_field)
-		{ }
-		virtual ~TypedConfigClassMember()
-		{ }
+        TypedConfigClassMember(Tc config_type, Tf Ti::*config_field)
+                : config_type_(config_type),
+                  config_field_(config_field) {}
 
-		void marshall(ConfigExporter *exp, const ConfigClassInstance *instance) const
-		{
-			const Ti *inst = dynamic_cast<const Ti *>(instance);
-			ASSERT("/config/class/field", inst != NULL);
-			config_type_->marshall(exp, &(inst->*config_field_));
-		}
+        virtual ~TypedConfigClassMember() {}
 
-		bool set(ConfigObject *co, const std::string& vstr) const
-		{
-			Ti *inst = dynamic_cast<Ti *>(co->instance_);
-			ASSERT("/config/class/field", inst != NULL);
-			return (config_type_->set(co, vstr, &(inst->*config_field_)));
-		}
+        void marshall(ConfigExporter *exp, const ConfigClassInstance *instance) const {
+            const Ti *inst = dynamic_cast<const Ti *>(instance);
+            ASSERT("/config/class/field", inst != NULL);
+            config_type_->marshall(exp, &(inst->*config_field_));
+        }
 
-		ConfigType *type(void) const
-		{
-			return (config_type_);
-		}
-	};
+        bool set(ConfigObject *co, const std::string &vstr) const {
+            Ti *inst = dynamic_cast<Ti *>(co->instance_);
+            ASSERT("/config/class/field", inst != NULL);
+            return (config_type_->set(co, vstr, &(inst->*config_field_)));
+        }
 
-	ASSERT("/config/class/" + name_, members_.find(mname) == members_.end());
-	members_[mname] = new TypedConfigClassMember(type, fieldp);
+        ConfigType *type(void) const {
+            return (config_type_);
+        }
+    };
+
+    ASSERT("/config/class/" + name_, members_.find(mname) == members_.end());
+    members_[mname] = new TypedConfigClassMember(type, fieldp);
 }
 
 #endif /* !CONFIG_CONFIG_OBJECT_H */
