@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	EVENT_CALLBACK_H
-#define	EVENT_CALLBACK_H
+#ifndef    EVENT_CALLBACK_H
+#define    EVENT_CALLBACK_H
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -36,11 +36,11 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class Callback 
-{
+class Callback {
 public:
-	virtual ~Callback ()	{}
-	virtual void execute () = 0;
+    virtual ~Callback() {}
+
+    virtual void execute() = 0;
 };
 
 #endif /* !EVENT_CALLBACK_H */

@@ -23,11 +23,11 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	CRYPTO_CRYPTO_RANDOM_H
-#define	CRYPTO_CRYPTO_RANDOM_H
+#ifndef    CRYPTO_CRYPTO_RANDOM_H
+#define    CRYPTO_CRYPTO_RANDOM_H
 
-#include <event/action.h>
-#include <event/event_callback.h>
+#include "../event/action.h"
+#include "../event/event_callback.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -46,35 +46,33 @@ class CryptoRandomMethod;
  * Add a CryptoTypeBest, which will use whatever the best, available method is.
  */
 enum CryptoRandomType {
-	CryptoTypeRNG,
-	CryptoTypePRNG,
+    CryptoTypeRNG,
+    CryptoTypePRNG,
 };
 
 class CryptoRandomSession {
 protected:
-	CryptoRandomSession(void)
-	{ }
+    CryptoRandomSession(void) {}
 
 public:
-	virtual ~CryptoRandomSession()
-	{ }
+    virtual ~CryptoRandomSession() {}
 
-	//virtual Action *generate(size_t, EventCallback *) = 0;
+    //virtual Action *generate(size_t, EventCallback *) = 0;
 };
 
 class CryptoRandomMethod {
 protected:
-	CryptoRandomMethod(void)
-	{ }
+    CryptoRandomMethod(void) {}
 
-	virtual ~CryptoRandomMethod()
-	{ }
+    virtual ~CryptoRandomMethod() {}
+
 public:
-	virtual bool generate(CryptoRandomType, size_t, Buffer *) const = 0;
-	virtual CryptoRandomSession *session(CryptoRandomType) const = 0;
+    virtual bool generate(CryptoRandomType, size_t, Buffer *) const = 0;
 
-	/* XXX Registration API somehow.  */
-	static const CryptoRandomMethod *default_method;
+    virtual CryptoRandomSession *session(CryptoRandomType) const = 0;
+
+    /* XXX Registration API somehow.  */
+    static const CryptoRandomMethod *default_method;
 };
 
 #endif /* !CRYPTO_CRYPTO_RANDOM_H */

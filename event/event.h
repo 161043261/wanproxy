@@ -23,10 +23,10 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	EVENT_EVENT_H
-#define	EVENT_EVENT_H
+#ifndef    EVENT_EVENT_H
+#define    EVENT_EVENT_H
 
-#include <common/buffer.h>
+#include "../common/buffer.h"
 
 /*
  * The general-purpose event type.  Never extended or anything like that.
@@ -50,87 +50,78 @@
  * how things are done at present.
  */
 struct Event {
-	enum Type {
-		Invalid,
-		Done,
-		EOS,
-		Error,
-	};
+    enum Type {
+        Invalid,
+        Done,
+        EOS,
+        Error,
+    };
 
-	Type type_;
-	int error_;
-	Buffer buffer_;
+    Type type_;
+    int error_;
+    Buffer buffer_;
 
-	Event(void)
-	: type_(Event::Invalid),
-	  error_(0),
-	  buffer_()
-	{ }
+    Event(void)
+            : type_(Event::Invalid),
+              error_(0),
+              buffer_() {}
 
-	Event(Type type)
-	: type_(type),
-	  error_(0),
-	  buffer_()
-	{ }
+    Event(Type type)
+            : type_(type),
+              error_(0),
+              buffer_() {}
 
-	Event(Type type, int error)
-	: type_(type),
-	  error_(error),
-	  buffer_()
-	{ }
+    Event(Type type, int error)
+            : type_(type),
+              error_(error),
+              buffer_() {}
 
 
-	Event(Type type, const Buffer& buffer)
-	: type_(type),
-	  error_(0),
-	  buffer_(buffer)
-	{ }
+    Event(Type type, const Buffer &buffer)
+            : type_(type),
+              error_(0),
+              buffer_(buffer) {}
 
-	Event(Type type, int error, const Buffer& buffer)
-	: type_(type),
-	  error_(error),
-	  buffer_(buffer)
-	{ }
+    Event(Type type, int error, const Buffer &buffer)
+            : type_(type),
+              error_(error),
+              buffer_(buffer) {}
 
-	Event(const Event& e)
-	: type_(e.type_),
-	  error_(e.error_),
-	  buffer_(e.buffer_)
-	{ }
+    Event(const Event &e)
+            : type_(e.type_),
+              error_(e.error_),
+              buffer_(e.buffer_) {}
 
-	Event& operator= (const Event& e)
-	{
-		type_ = e.type_;
-		error_ = e.error_;
-		buffer_ = e.buffer_;
-		return (*this);
-	}
+    Event &operator=(const Event &e) {
+        type_ = e.type_;
+        error_ = e.error_;
+        buffer_ = e.buffer_;
+        return (*this);
+    }
 };
 
-static inline std::ostream&
-operator<< (std::ostream& os, Event::Type type)
-{
-	switch (type) {
-	case Event::Invalid:
-		return (os << "<Invalid>");
-	case Event::Done:
-		return (os << "<Done>");
-	case Event::EOS:
-		return (os << "<EOS>");
-	case Event::Error:
-		return (os << "<Error>");
-	default:
-		return (os << "<Unexpected Event::Type>");
-	}
+static inline std::ostream &
+operator<<(std::ostream &os, Event::Type type) {
+    switch (type) {
+        case Event::Invalid:
+            return (os << "<Invalid>");
+        case Event::Done:
+            return (os << "<Done>");
+        case Event::EOS:
+            return (os << "<EOS>");
+        case Event::Error:
+            return (os << "<Error>");
+        default:
+            return (os << "<Unexpected Event::Type>");
+    }
 }
 
-static inline std::ostream&
-operator<< (std::ostream& os, Event e)
-{
-	if (e.type_ != Event::Error && e.error_ == 0)
-		return (os << e.type_);
-	return (os << e.type_ << '/' << e.error_ << " [" <<
-		strerror(e.error_) << "]");
+static inline std::ostream &
+operator<<(std::ostream &os, Event e) {
+    if (e.type_ != Event::Error && e.error_ == 0)
+        return (os << e.type_);
+    return (os << e.type_ << '/' << e.error_ << " [" <<
+               strerror(e.error_) << "]");
 }
 
 #endif /* !EVENT_EVENT_H */
