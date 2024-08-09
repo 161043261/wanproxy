@@ -23,13 +23,13 @@
  * SUCH DAMAGE.
  */
 
-#include "wanproxy_config_type_proxy_role.h"
+#include "./wanproxy_config_type_proxy_role.h"
 
 static struct WANProxyConfigTypeProxyRole::Mapping wanproxy_config_type_proxy_role_map[] = {
-	{ "Client",	WANProxyConfigProxyRoleClient },
-	{ "Server",	WANProxyConfigProxyRoleServer },
-	{ NULL,		WANProxyConfigProxyRoleUndefined }
+        {"Client", WANProxyConfigProxyRoleClient},
+        {"Server", WANProxyConfigProxyRoleServer},
+        {NULL,     WANProxyConfigProxyRoleUndefined}
 };
 
 WANProxyConfigTypeProxyRole
-	wanproxy_config_type_proxy_role ("proxy_role", wanproxy_config_type_proxy_role_map);
+        wanproxy_config_type_proxy_role("proxy_role", wanproxy_config_type_proxy_role_map);

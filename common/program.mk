@@ -51,14 +51,6 @@ CFLAGS+=-O2
 CPPFLAGS+=-DNDEBUG=1
 else
 CFLAGS+=-O0
-ifneq "${OSNAME}" "SunOS"
-CFLAGS+=-g
-endif
-endif
-
-# OpenBSD needs no -Werror.
-ifeq "${OSNAME}" "OpenBSD"
-NO_WERROR=1
 endif
 
 # Linux needs no -Werror because the epoll headers are terrible.

@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	IO_STREAM_HANDLE_H
-#define	IO_STREAM_HANDLE_H
+#ifndef    IO_STREAM_HANDLE_H
+#define    IO_STREAM_HANDLE_H
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -36,19 +36,21 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class StreamHandle
-{
-	LogHandle log_;
+class StreamHandle {
+    LogHandle log_;
 protected:
-	int fd_;
-	
-public:
-	StreamHandle (int);
-	virtual ~StreamHandle () {}
+    int fd_;
 
-	virtual Action* read (EventCallback* cb);
-	virtual Action* write (Buffer& buf, EventCallback* cb);
-	virtual Action* close (EventCallback* cb = 0);
+public:
+    StreamHandle(int);
+
+    virtual ~StreamHandle() {}
+
+    virtual Action *read(EventCallback *cb);
+
+    virtual Action *write(Buffer &buf, EventCallback *cb);
+
+    virtual Action *close(EventCallback *cb = 0);
 };
 
 #endif /* !IO_STREAM_HANDLE_H */

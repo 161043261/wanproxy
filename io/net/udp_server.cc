@@ -23,7 +23,7 @@
  * SUCH DAMAGE.
  */
 
-#include <io/net/udp_server.h>
+#include "./udp_server.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -35,25 +35,21 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-bool UDPServer::listen (SocketAddressFamily family, const std::string& name)
-{
-	if (socket_)
-	{
-		socket_->close (0);
-		delete socket_;
-	}
-	
-	socket_ = Socket::create (family, SocketTypeDatagram, "udp", name);
-	if (! socket_) 
-	{
-		ERROR("/udp/server") << "Unable to create socket.";
-		return false;
-	}
-	if (! socket_->bind (name)) 
-	{
-		ERROR("/udp/server") << "Socket bind failed";
-		return false;
-	}
-	
-	return true;
+bool UDPServer::listen(SocketAddressFamily family, const std::string &name) {
+    if (socket_) {
+        socket_->close(0);
+        delete socket_;
+    }
+
+    socket_ = Socket::create(family, SocketTypeDatagram, "udp", name);
+    if (!socket_) {
+        ERROR("/udp/server") << "Unable to create socket.";
+        return false;
+    }
+    if (!socket_->bind(name)) {
+        ERROR("/udp/server") << "Socket bind failed";
+        return false;
+    }
+
+    return true;
 }

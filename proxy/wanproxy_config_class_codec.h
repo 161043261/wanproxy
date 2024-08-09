@@ -23,14 +23,14 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	PROGRAMS_WANPROXY_WANPROXY_CONFIG_CLASS_CODEC_H
-#define	PROGRAMS_WANPROXY_WANPROXY_CONFIG_CLASS_CODEC_H
+#ifndef    PROGRAMS_WANPROXY_WANPROXY_CONFIG_CLASS_CODEC_H
+#define    PROGRAMS_WANPROXY_WANPROXY_CONFIG_CLASS_CODEC_H
 
-#include <config/config_type_int.h>
-#include <config/config_type_string.h>
-#include "wanproxy_codec.h"
-#include "wanproxy_config_type_codec.h"
-#include "wanproxy_config_type_compressor.h"
+#include "../config/config_type_int.h"
+#include "../config/config_type_string.h"
+#include "./wanproxy_codec.h"
+#include "./wanproxy_config_type_codec.h"
+#include "./wanproxy_config_type_compressor.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -45,48 +45,45 @@
 class WANProxyConfigClassCodec : public ConfigClass {
 
 public:
-	struct Instance : public ConfigClassInstance {
+    struct Instance : public ConfigClassInstance {
 
-		WANProxyCodec codec_;
-		WANProxyConfigCodec codec_type_;
-		WANProxyConfigCompressor compressor_;
-		intmax_t compressor_level_;
-		intmax_t byte_counts_;
-		WANProxyConfigCache cache_type_;
-		std::string cache_path_;
-		intmax_t local_size_;
-		intmax_t remote_size_;
+        WANProxyCodec codec_;
+        WANProxyConfigCodec codec_type_;
+        WANProxyConfigCompressor compressor_;
+        intmax_t compressor_level_;
+        intmax_t byte_counts_;
+        WANProxyConfigCache cache_type_;
+        std::string cache_path_;
+        intmax_t local_size_;
+        intmax_t remote_size_;
 
-		Instance(void)
-		: codec_type_(WANProxyConfigCodecNone),
-		  compressor_(WANProxyConfigCompressorNone),
-		  compressor_level_(0),
-		  byte_counts_(0),
-		  cache_type_(WANProxyConfigCacheMemory),
-		  local_size_(0),
-		  remote_size_(0)
-		{
-		}
+        Instance(void)
+                : codec_type_(WANProxyConfigCodecNone),
+                  compressor_(WANProxyConfigCompressorNone),
+                  compressor_level_(0),
+                  byte_counts_(0),
+                  cache_type_(WANProxyConfigCacheMemory),
+                  local_size_(0),
+                  remote_size_(0) {
+        }
 
-		bool activate(const ConfigObject *);
-	};
+        bool activate(const ConfigObject *);
+    };
 
-	WANProxyConfigClassCodec(void)
-	: ConfigClass("codec", new ConstructorFactory<ConfigClassInstance, Instance>)
-	{
-		add_member("codec", &wanproxy_config_type_codec, &Instance::codec_type_);
-		add_member("compressor", &wanproxy_config_type_compressor, &Instance::compressor_);
-		add_member("compressor_level", &config_type_int, &Instance::compressor_level_);
-		add_member("byte_counts", &config_type_int, &Instance::byte_counts_);
+    WANProxyConfigClassCodec(void)
+            : ConfigClass("codec", new ConstructorFactory<ConfigClassInstance, Instance>) {
+        add_member("codec", &wanproxy_config_type_codec, &Instance::codec_type_);
+        add_member("compressor", &wanproxy_config_type_compressor, &Instance::compressor_);
+        add_member("compressor_level", &config_type_int, &Instance::compressor_level_);
+        add_member("byte_counts", &config_type_int, &Instance::byte_counts_);
 
-		add_member("cache", &wanproxy_config_type_cache, &Instance::cache_type_);
-		add_member("cache_path", &config_type_string, &Instance::cache_path_);
-		add_member("local_size", &config_type_int, &Instance::local_size_);
-		add_member("remote_size", &config_type_int, &Instance::remote_size_);
-	}
+        add_member("cache", &wanproxy_config_type_cache, &Instance::cache_type_);
+        add_member("cache_path", &config_type_string, &Instance::cache_path_);
+        add_member("local_size", &config_type_int, &Instance::local_size_);
+        add_member("remote_size", &config_type_int, &Instance::remote_size_);
+    }
 
-	~WANProxyConfigClassCodec()
-	{ }
+    ~WANProxyConfigClassCodec() {}
 };
 
 extern WANProxyConfigClassCodec wanproxy_config_class_codec;

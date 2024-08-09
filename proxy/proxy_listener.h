@@ -23,13 +23,13 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	PROGRAMS_WANPROXY_PROXY_LISTENER_H
-#define	PROGRAMS_WANPROXY_PROXY_LISTENER_H
+#ifndef    PROGRAMS_WANPROXY_PROXY_LISTENER_H
+#define    PROGRAMS_WANPROXY_PROXY_LISTENER_H
 
-#include <event/action.h>
-#include <event/event.h>
-#include <io/net/tcp_server.h>
-#include "wanproxy_codec.h"
+#include "../event/action.h"
+#include "../event/event.h"
+#include "../io/net/tcp_server.h"
+#include "./wanproxy_codec.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -41,29 +41,31 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class ProxyListener : public TCPServer
-{
-	LogHandle log_;
-	std::string name_;
-	WANProxyCodec* local_codec_;
-	WANProxyCodec* remote_codec_;
-	SocketAddressFamily local_family_;
-	std::string local_address_;
-	SocketAddressFamily remote_family_;
-	std::string remote_address_;
-	bool is_cln_, is_ssh_;
-	Action* accept_action_;
-	Action* stop_action_;
-	
-public:
-	ProxyListener (const std::string&, WANProxyCodec*, WANProxyCodec*, SocketAddressFamily, const std::string&,
-						SocketAddressFamily, const std::string&, bool cln, bool ssh);
-	~ProxyListener ();
+class ProxyListener : public TCPServer {
+    LogHandle log_;
+    std::string name_;
+    WANProxyCodec *local_codec_;
+    WANProxyCodec *remote_codec_;
+    SocketAddressFamily local_family_;
+    std::string local_address_;
+    SocketAddressFamily remote_family_;
+    std::string remote_address_;
+    bool is_cln_, is_ssh_;
+    Action *accept_action_;
+    Action *stop_action_;
 
-	void launch_service ();
-	void refresh (const std::string&, WANProxyCodec*, WANProxyCodec*, SocketAddressFamily, const std::string&,
-					  SocketAddressFamily, const std::string&, bool cln, bool ssh);
-	void accept_complete (Event e, Socket* client);
+public:
+    ProxyListener(const std::string &, WANProxyCodec *, WANProxyCodec *, SocketAddressFamily, const std::string &,
+                  SocketAddressFamily, const std::string &, bool cln, bool ssh);
+
+    ~ProxyListener();
+
+    void launch_service();
+
+    void refresh(const std::string &, WANProxyCodec *, WANProxyCodec *, SocketAddressFamily, const std::string &,
+                 SocketAddressFamily, const std::string &, bool cln, bool ssh);
+
+    void accept_complete(Event e, Socket *client);
 };
 
 #endif /* !PROGRAMS_WANPROXY_PROXY_LISTENER_H */

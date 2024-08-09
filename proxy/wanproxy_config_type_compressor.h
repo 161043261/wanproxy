@@ -23,14 +23,14 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_COMPRESSOR_H
-#define	PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_COMPRESSOR_H
+#ifndef    PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_COMPRESSOR_H
+#define    PROGRAMS_WANPROXY_WANPROXY_CONFIG_TYPE_COMPRESSOR_H
 
-#include <config/config_type_enum.h>
+#include "../config/config_type_enum.h"
 
 enum WANProxyConfigCompressor {
-	WANProxyConfigCompressorNone,
-	WANProxyConfigCompressorZlib
+    WANProxyConfigCompressorNone,
+    WANProxyConfigCompressorZlib
 };
 
 typedef ConfigTypeEnum<WANProxyConfigCompressor> WANProxyConfigTypeCompressor;
