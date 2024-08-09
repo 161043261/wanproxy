@@ -9,12 +9,17 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CMAKE_BUILD_TYPE Debug) # Release
+set(CMAKE_BUILD_TYPE Release) # Debug | Release
 
-if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    add_compile_options(-O2 -Wno-deprecated -Wnon-virtual-dtor -include common/common.h -pipe -O2 -W -Wall -Wno-system-headers -Wno-unused-parameter -Wno-switch -Wpointer-arith -Wreturn-type -Wcast-qual -Wwrite-strings -Wshadow -Wcast-align -Wchar-subscripts -Wreorder)
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    # Consider using -O3 ?
+    add_compile_options(-DNDEBUG=1
+            -O2 -Wno-deprecated -Wnon-virtual-dtor -include common/common.h -pipe -W -Wall -Wno-system-headers -Wno-unused-parameter
+            -Wno-switch -Wpointer-arith -Wreturn-type -Wcast-qual -Wwrite-strings -Wshadow -Wcast-align -Wchar-subscripts -Wreorder)
 else ()
-    add_compile_options(-DNDEBUG=1 -O0 -Wno-deprecated -Wnon-virtual-dtor -include common/common.h -pipe -O0 -W -Wall -Wno-system-headers -Wno-unused-parameter -Wno-switch -Wpointer-arith -Wreturn-type -Wcast-qual -Wwrite-strings -Wshadow -Wcast-align -Wchar-subscripts -Wreorder)
+    add_compile_options(
+            -O0 -Wno-deprecated -Wnon-virtual-dtor -include common/common.h -pipe -W -Wall -Wno-system-headers -Wno-unused-parameter
+            -Wno-switch -Wpointer-arith -Wreturn-type -Wcast-qual -Wwrite-strings -Wshadow -Wcast-align -Wchar-subscripts -Wreorder)
 endif ()
 
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
