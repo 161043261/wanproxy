@@ -20,23 +20,21 @@ essential to its basic operation mode, to be able to optimize this one as much a
 This version has been originated, sponsored and advised by XTech.
 
 ```sh
-make clean
+mkdir build && cd build
 
-make # NDEBUG=1
+cmake ..
 
-cd proxy/bin
+make
+
+cd bin
 
 # server
-./wanproxy -c ../server.conf
+./wanproxy -c ../../server.conf
 
 iperf3 -s -p 3302
 
 # client
-./wanproxy -c ../client.conf
+./wanproxy -c ../../client.conf
 
 iperf3 -c localhost -p 3300 -i 1
-
-# dev
-cd ../ && rm -rf bin && mkdir bin && make && cd bin
-./wanproxy -c ../server.conf
 ```
