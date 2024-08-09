@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	SSH_SSH_ALGORITHM_NEGOTIATION_H
-#define	SSH_SSH_ALGORITHM_NEGOTIATION_H
+#ifndef    SSH_SSH_ALGORITHM_NEGOTIATION_H
+#define    SSH_SSH_ALGORITHM_NEGOTIATION_H
 
 #include <list>
 
@@ -39,101 +39,100 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 class Buffer;
+
 class Filter;
 
 namespace SSH {
-	class Compression;
-	class Encryption;
-	class KeyExchange;
-	class Language;
-	class MAC;
-	class ServerHostKey;
-	struct Session;
+    class Compression;
 
-	class AlgorithmNegotiation {
-		struct Algorithms {
-			std::list<KeyExchange *> key_exchange_list_;
-			std::list<ServerHostKey *> server_host_key_list_;
-			std::list<Encryption *> encryption_client_to_server_list_;
-			std::list<Encryption *> encryption_server_to_client_list_;
-			std::list<MAC *> mac_client_to_server_list_;
-			std::list<MAC *> mac_server_to_client_list_;
-			std::list<Compression *> compression_client_to_server_list_;
-			std::list<Compression *> compression_server_to_client_list_;
-			std::list<Language *> language_client_to_server_list_;
-			std::list<Language *> language_server_to_client_list_;
+    class Encryption;
 
-			Algorithms(void)
-			: key_exchange_list_(),
-			  server_host_key_list_(),
-			  encryption_client_to_server_list_(),
-			  encryption_server_to_client_list_(),
-			  mac_client_to_server_list_(),
-			  mac_server_to_client_list_(),
-			  compression_client_to_server_list_(),
-			  compression_server_to_client_list_(),
-			  language_client_to_server_list_(),
-			  language_server_to_client_list_()
-			{ }
-		};
+    class KeyExchange;
 
-		LogHandle log_;
-		Session *session_;
-		Algorithms algorithms_;
-	public:
-		AlgorithmNegotiation(Session *session)
-		: log_("/ssh/algorithm/negotiation"),
-		  session_(session),
-		  algorithms_()
-		{ }
+    class Language;
 
-		/* XXX Add a variant that takes only server_host_key_list and fills in suitable defaults.  */
+    class MAC;
 
-		~AlgorithmNegotiation()
-		{ }
+    class ServerHostKey;
 
-		void add_algorithm(KeyExchange *key_exchange)
-		{
-			algorithms_.key_exchange_list_.push_back(key_exchange);
-		}
+    struct Session;
 
-		void add_algorithm(ServerHostKey *server_host_key)
-		{
-			algorithms_.server_host_key_list_.push_back(server_host_key);
-		}
+    class AlgorithmNegotiation {
+        struct Algorithms {
+            std::list<KeyExchange *> key_exchange_list_;
+            std::list<ServerHostKey *> server_host_key_list_;
+            std::list<Encryption *> encryption_client_to_server_list_;
+            std::list<Encryption *> encryption_server_to_client_list_;
+            std::list<MAC *> mac_client_to_server_list_;
+            std::list<MAC *> mac_server_to_client_list_;
+            std::list<Compression *> compression_client_to_server_list_;
+            std::list<Compression *> compression_server_to_client_list_;
+            std::list<Language *> language_client_to_server_list_;
+            std::list<Language *> language_server_to_client_list_;
 
-		void add_algorithm(Encryption *encryption)
-		{
-			algorithms_.encryption_client_to_server_list_.push_back(encryption);
-			algorithms_.encryption_server_to_client_list_.push_back(encryption);
-		}
+            Algorithms(void)
+                    : key_exchange_list_(),
+                      server_host_key_list_(),
+                      encryption_client_to_server_list_(),
+                      encryption_server_to_client_list_(),
+                      mac_client_to_server_list_(),
+                      mac_server_to_client_list_(),
+                      compression_client_to_server_list_(),
+                      compression_server_to_client_list_(),
+                      language_client_to_server_list_(),
+                      language_server_to_client_list_() {}
+        };
 
-		void add_algorithm(MAC *mac)
-		{
-			algorithms_.mac_client_to_server_list_.push_back(mac);
-			algorithms_.mac_server_to_client_list_.push_back(mac);
-		}
+        LogHandle log_;
+        Session *session_;
+        Algorithms algorithms_;
+    public:
+        AlgorithmNegotiation(Session *session)
+                : log_("/ssh/algorithm/negotiation"),
+                  session_(session),
+                  algorithms_() {}
 
-		void add_algorithm(Compression *compression)
-		{
-			algorithms_.compression_client_to_server_list_.push_back(compression);
-			algorithms_.compression_server_to_client_list_.push_back(compression);
-		}
+        /* XXX Add a variant that takes only server_host_key_list and fills in suitable defaults.  */
 
-		void add_algorithm(Language *language)
-		{
-			algorithms_.language_client_to_server_list_.push_back(language);
-			algorithms_.language_server_to_client_list_.push_back(language);
-		}
+        ~AlgorithmNegotiation() {}
 
-		void add_algorithms(void);
+        void add_algorithm(KeyExchange *key_exchange) {
+            algorithms_.key_exchange_list_.push_back(key_exchange);
+        }
 
-		bool input(Filter *, Buffer *);
-		bool init(Buffer *);
+        void add_algorithm(ServerHostKey *server_host_key) {
+            algorithms_.server_host_key_list_.push_back(server_host_key);
+        }
 
-	private:
-		bool choose_algorithms(Buffer *);
-	};
+        void add_algorithm(Encryption *encryption) {
+            algorithms_.encryption_client_to_server_list_.push_back(encryption);
+            algorithms_.encryption_server_to_client_list_.push_back(encryption);
+        }
+
+        void add_algorithm(MAC *mac) {
+            algorithms_.mac_client_to_server_list_.push_back(mac);
+            algorithms_.mac_server_to_client_list_.push_back(mac);
+        }
+
+        void add_algorithm(Compression *compression) {
+            algorithms_.compression_client_to_server_list_.push_back(compression);
+            algorithms_.compression_server_to_client_list_.push_back(compression);
+        }
+
+        void add_algorithm(Language *language) {
+            algorithms_.language_client_to_server_list_.push_back(language);
+            algorithms_.language_server_to_client_list_.push_back(language);
+        }
+
+        void add_algorithms(void);
+
+        bool input(Filter *, Buffer *);
+
+        bool init(Buffer *);
+
+    private:
+        bool choose_algorithms(Buffer *);
+    };
 }
 
 #endif /* !SSH_SSH_ALGORITHM_NEGOTIATION_H */

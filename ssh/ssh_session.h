@@ -23,137 +23,137 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	SSH_SSH_SESSION_H
-#define	SSH_SSH_SESSION_H
+#ifndef    SSH_SSH_SESSION_H
+#define    SSH_SSH_SESSION_H
 
 namespace SSH {
-	class AlgorithmNegotiation;
-	class Compression;
-	class Encryption;
-	class KeyExchange;
-	class Language;
-	class MAC;
-	class ServerHostKey;
+    class AlgorithmNegotiation;
 
-	enum Role {
-		ClientRole,
-		ServerRole,
-	};
+    class Compression;
 
-	struct UnidirectionalAlgorithms {
-		Encryption *encryption_;
-		MAC *mac_;
-		Compression *compression_;
-		Language *language_;
+    class Encryption;
 
-		UnidirectionalAlgorithms(void)
-		: encryption_(NULL),
-		  mac_(NULL),
-		  compression_(NULL),
-		  language_(NULL)
-		{ }
-	};
+    class KeyExchange;
 
-	struct Algorithms {
-		KeyExchange *key_exchange_;
-		ServerHostKey *server_host_key_;
-		UnidirectionalAlgorithms client_to_server_;
-		UnidirectionalAlgorithms server_to_client_;
-		UnidirectionalAlgorithms *local_to_remote_;
-		UnidirectionalAlgorithms *remote_to_local_;
+    class Language;
 
-		Algorithms(Role role)
-		: key_exchange_(NULL),
-		  server_host_key_(NULL),
-		  client_to_server_(),
-		  server_to_client_(),
-		  local_to_remote_(role == ClientRole ? &client_to_server_ : &server_to_client_),
-		  remote_to_local_(role == ClientRole ? &server_to_client_ : &client_to_server_)
-		{ }
-	};
+    class MAC;
 
-	struct Session {
-		Role role_;
+    class ServerHostKey;
 
-		AlgorithmNegotiation *algorithm_negotiation_;
-		Algorithms chosen_algorithms_;
-		Algorithms active_algorithms_;
-		Buffer client_version_;	/* Client's version string.  */
-		Buffer server_version_;	/* Server's version string.  */
-		Buffer client_kexinit_;	/* Client's first key exchange packet.  */
-		Buffer server_kexinit_;	/* Server's first key exchange packet.  */
-		Buffer shared_secret_;	/* Shared secret from key exchange.  */
-		Buffer session_id_;	/* First exchange hash.  */
-		Buffer exchange_hash_;	/* Most recent exchange hash.  */
-	private:
-		Buffer client_to_server_iv_;	/* Initial client-to-server IV.  */
-		Buffer server_to_client_iv_;	/* Initial server-to-client IV.  */
-		Buffer client_to_server_key_;	/* Client-to-server encryption key.  */
-		Buffer server_to_client_key_;	/* Server-to-client encryption key.  */
-		Buffer client_to_server_integrity_key_;	/* Client-to-server integrity key.  */
-		Buffer server_to_client_integrity_key_;	/* Server-to-client integrity key.  */
-	public:
-		uint32_t local_sequence_number_;	/* Our packet sequence number.  */
-		uint32_t remote_sequence_number_;	/* Our peer's packet sequence number.  */
+    enum Role {
+        ClientRole,
+        ServerRole,
+    };
 
-		Session(Role role)
-		: role_(role),
-		  algorithm_negotiation_(NULL),
-		  chosen_algorithms_(role),
-		  active_algorithms_(role),
-		  client_version_(),
-		  server_version_(),
-		  client_kexinit_(),
-		  server_kexinit_(),
-		  shared_secret_(),
-		  session_id_(),
-		  exchange_hash_(),
-		  client_to_server_iv_(),
-		  server_to_client_iv_(),
-		  client_to_server_key_(),
-		  server_to_client_key_(),
-		  client_to_server_integrity_key_(),
-		  server_to_client_integrity_key_(),
-		  local_sequence_number_(0),
-		  remote_sequence_number_(0)
-		{ }
+    struct UnidirectionalAlgorithms {
+        Encryption *encryption_;
+        MAC *mac_;
+        Compression *compression_;
+        Language *language_;
 
-		void local_version(const Buffer& version)
-		{
-			if (role_ == ClientRole)
-				client_version_ = version;
-			else
-				server_version_ = version;
-		}
+        UnidirectionalAlgorithms(void)
+                : encryption_(NULL),
+                  mac_(NULL),
+                  compression_(NULL),
+                  language_(NULL) {}
+    };
 
-		void remote_version(const Buffer& version)
-		{
-			if (role_ == ClientRole)
-				server_version_ = version;
-			else
-				client_version_ = version;
-		}
+    struct Algorithms {
+        KeyExchange *key_exchange_;
+        ServerHostKey *server_host_key_;
+        UnidirectionalAlgorithms client_to_server_;
+        UnidirectionalAlgorithms server_to_client_;
+        UnidirectionalAlgorithms *local_to_remote_;
+        UnidirectionalAlgorithms *remote_to_local_;
 
-		void local_kexinit(const Buffer& kexinit)
-		{
-			if (role_ == ClientRole)
-				client_kexinit_ = kexinit;
-			else
-				server_kexinit_ = kexinit;
-		}
+        Algorithms(Role role)
+                : key_exchange_(NULL),
+                  server_host_key_(NULL),
+                  client_to_server_(),
+                  server_to_client_(),
+                  local_to_remote_(role == ClientRole ? &client_to_server_ : &server_to_client_),
+                  remote_to_local_(role == ClientRole ? &server_to_client_ : &client_to_server_) {}
+    };
 
-		void remote_kexinit(const Buffer& kexinit)
-		{
-			if (role_ == ClientRole)
-				server_kexinit_ = kexinit;
-			else
-				client_kexinit_ = kexinit;
-		}
+    struct Session {
+        Role role_;
 
-		void activate_chosen(void);
-	private:
-		Buffer generate_key(const std::string& x, unsigned key_size);
-	};
+        AlgorithmNegotiation *algorithm_negotiation_;
+        Algorithms chosen_algorithms_;
+        Algorithms active_algorithms_;
+        Buffer client_version_;    /* Client's version string.  */
+        Buffer server_version_;    /* Server's version string.  */
+        Buffer client_kexinit_;    /* Client's first key exchange packet.  */
+        Buffer server_kexinit_;    /* Server's first key exchange packet.  */
+        Buffer shared_secret_;    /* Shared secret from key exchange.  */
+        Buffer session_id_;    /* First exchange hash.  */
+        Buffer exchange_hash_;    /* Most recent exchange hash.  */
+    private:
+        Buffer client_to_server_iv_;    /* Initial client-to-server IV.  */
+        Buffer server_to_client_iv_;    /* Initial server-to-client IV.  */
+        Buffer client_to_server_key_;    /* Client-to-server encryption key.  */
+        Buffer server_to_client_key_;    /* Server-to-client encryption key.  */
+        Buffer client_to_server_integrity_key_;    /* Client-to-server integrity key.  */
+        Buffer server_to_client_integrity_key_;    /* Server-to-client integrity key.  */
+    public:
+        uint32_t local_sequence_number_;    /* Our packet sequence number.  */
+        uint32_t remote_sequence_number_;    /* Our peer's packet sequence number.  */
+
+        Session(Role role)
+                : role_(role),
+                  algorithm_negotiation_(NULL),
+                  chosen_algorithms_(role),
+                  active_algorithms_(role),
+                  client_version_(),
+                  server_version_(),
+                  client_kexinit_(),
+                  server_kexinit_(),
+                  shared_secret_(),
+                  session_id_(),
+                  exchange_hash_(),
+                  client_to_server_iv_(),
+                  server_to_client_iv_(),
+                  client_to_server_key_(),
+                  server_to_client_key_(),
+                  client_to_server_integrity_key_(),
+                  server_to_client_integrity_key_(),
+                  local_sequence_number_(0),
+                  remote_sequence_number_(0) {}
+
+        void local_version(const Buffer &version) {
+            if (role_ == ClientRole)
+                client_version_ = version;
+            else
+                server_version_ = version;
+        }
+
+        void remote_version(const Buffer &version) {
+            if (role_ == ClientRole)
+                server_version_ = version;
+            else
+                client_version_ = version;
+        }
+
+        void local_kexinit(const Buffer &kexinit) {
+            if (role_ == ClientRole)
+                client_kexinit_ = kexinit;
+            else
+                server_kexinit_ = kexinit;
+        }
+
+        void remote_kexinit(const Buffer &kexinit) {
+            if (role_ == ClientRole)
+                server_kexinit_ = kexinit;
+            else
+                client_kexinit_ = kexinit;
+        }
+
+        void activate_chosen(void);
+
+    private:
+        Buffer generate_key(const std::string &x, unsigned key_size);
+    };
 }
 
 #endif /* !SSH_SSH_SESSION_H */
