@@ -23,70 +23,63 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	COMMON_THREAD_ATOMIC_H
-#define	COMMON_THREAD_ATOMIC_H
+#ifndef    COMMON_THREAD_ATOMIC_H
+#define    COMMON_THREAD_ATOMIC_H
 
 template<typename T>
 class Atomic {
-	T val_;
+    T val_;
 public:
-	Atomic(void)
-	: val_()
-	{ }
+    Atomic() : val_() {}
 
-	template<typename Ta>
-	Atomic(Ta arg)
-	: val_(arg)
-	{ }
+    template<typename Ta>
+    Atomic(Ta arg): val_(arg) {}
 
-	~Atomic()
-	{ }
-	
-	T val () const							{ return val_; }
-	bool operator == (T v) const		{ return (v == val_); }
-	bool operator != (T v) const		{ return (v != val_); }
+    ~Atomic() = default;
 
-	/*
-	 * Note that these are deliberately not operator overloads, to force
-	 * deliberate use of this class.
-	 */
+    T val() const { return val_; }
+
+    bool operator==(T v) const { return (v == val_); }
+
+    bool operator!=(T v) const { return (v != val_); }
+
+    /*
+     * Note that these are deliberately not operator overloads, to force
+     * deliberate use of this class.
+     */
 
 #if defined(__GNUC__)
-	template<typename Ta>
-	T add(Ta arg)
-	{
-		return (__sync_add_and_fetch (&val_, arg));
-	}
 
-	template<typename Ta>
-	T subtract(Ta arg)
-	{
-		return (__sync_sub_and_fetch (&val_, arg));
-	}
+    template<typename Ta>
+    T add(Ta arg) {
+        return (__sync_add_and_fetch(&val_, arg));
+    }
 
-	template<typename Ta>
-	T set(Ta arg)
-	{
-		return (__sync_or_and_fetch (&val_, arg));
-	}
+    template<typename Ta>
+    T subtract(Ta arg) {
+        return (__sync_sub_and_fetch(&val_, arg));
+    }
 
-	template<typename Ta>
-	T mask(Ta arg)
-	{
-		return (__sync_and_and_fetch (&val_, arg));
-	}
+    template<typename Ta>
+    T set(Ta arg) {
+        return (__sync_or_and_fetch(&val_, arg));
+    }
 
-	template<typename Ta>
-	T clear(Ta arg)
-	{
-		return (__sync_and_and_fetch (&val_, ~arg));
-	}
+    template<typename Ta>
+    T mask(Ta arg) {
+        return (__sync_and_and_fetch(&val_, arg));
+    }
 
-	template<typename To, typename Tn>
-	bool cmpset(To oldval, Tn newval)
-	{
-		return (__sync_bool_compare_and_swap (&val_, oldval, newval));
-	}
+    template<typename Ta>
+    T clear(Ta arg) {
+        return (__sync_and_and_fetch(&val_, ~arg));
+    }
+
+    template<typename To, typename Tn>
+    bool cmpset(To oldval, Tn newval) {
+        return (__sync_bool_compare_and_swap(&val_, oldval, newval));
+    }
+
 #else
 #error "No support for atomic operations for your compiler.  Why not add some?"
 #endif

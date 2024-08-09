@@ -23,7 +23,7 @@
  * SUCH DAMAGE.
  */
 
-#include <common/thread/thread.h>
+#include "./thread.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -35,37 +35,31 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace 
-{
-	static void* thread_posix_start (void* arg)
-	{
-		Thread* td = (Thread*) arg;
-		td->main ();
-		return 0;
-	}
+namespace {
+    void *thread_posix_start(void *arg) {
+        auto *td = (Thread *) arg;
+        td->main();
+        return nullptr;
+    }
 }
 
-Thread::Thread (const std::string& name) : name_(name), thread_id_(0), stop_(false)
-{ 
+Thread::Thread(const std::string &name) : name_(name), thread_id_(0), stop_(false) {
 }
 
-bool Thread::start ()
-{
-	int rv = pthread_create (&thread_id_, NULL, thread_posix_start, this);
-	if (rv != 0) 
-	{
-		ERROR("/thread/posix") << "Unable to start thread.";
-		return false;
-	}
-	return true;
+bool Thread::start() {
+    int rv = pthread_create(&thread_id_, nullptr, thread_posix_start, this);
+    if (rv != 0) {
+        ERROR("/thread/posix") << "Unable to start thread.";
+        return false;
+    }
+    return true;
 }
 
-void Thread::stop ()
-{
-	stop_ = true;
-	void* val;
-	int rv = pthread_join (thread_id_, &val);
-	if (rv == -1)
-		ERROR("/thread/posix") << "Thread join failed.";
+void Thread::stop() {
+    stop_ = true;
+    void *val;
+    int rv = pthread_join(thread_id_, &val);
+    if (rv == -1)
+        ERROR("/thread/posix") << "Thread join failed.";
 }
 

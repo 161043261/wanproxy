@@ -23,12 +23,12 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	COMMON_COMMON_H
-#define	COMMON_COMMON_H
+#ifndef    COMMON_COMMON_H
+#define    COMMON_COMMON_H
 
-#include <common/debug.h>
-#include <common/log.h>
-#include <common/types.h>
+#include "../common/debug.h"
+#include "../common/log.h"
+#include "../common/types.h"
 
 #include <algorithm>
 #include <cstddef>

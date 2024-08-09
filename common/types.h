@@ -23,11 +23,13 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	COMMON_TYPES_H
-#define	COMMON_TYPES_H
+#ifndef    COMMON_TYPES_H
+#define    COMMON_TYPES_H
 
 #if !defined(__OPENNT)
+
 #include <stdint.h> /* XXX cstdint? */
+
 #endif
 
 #if defined(__OPENNT)

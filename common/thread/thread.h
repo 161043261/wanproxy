@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	COMMON_THREAD_THREAD_H
-#define	COMMON_THREAD_THREAD_H
+#ifndef    COMMON_THREAD_THREAD_H
+#define    COMMON_THREAD_THREAD_H
 
 #include <pthread.h>
 
@@ -38,22 +38,23 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-class Thread 
-{
+class Thread {
 protected:
-	std::string name_;
-	pthread_t thread_id_;
-	bool stop_;
+    std::string name_;
+    pthread_t thread_id_;
+    bool stop_;
 
 protected:
-	Thread (const std::string&);
+    Thread(const std::string &);
 
 public:
-	virtual ~Thread () {}
-	
-	bool start ();
-	virtual void stop ();
-	virtual void main () = 0;
+    virtual ~Thread() {}
+
+    bool start();
+
+    virtual void stop();
+
+    virtual void main() = 0;
 };
 
 #endif /* !COMMON_THREAD_THREAD_H */

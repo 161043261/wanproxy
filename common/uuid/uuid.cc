@@ -24,7 +24,7 @@
  */
 
 #include <fstream>
-#include <common/uuid/uuid.h>
+#include "./uuid.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -36,96 +36,86 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-bool UUID::from_string (const uint8_t* str)
-{
+bool UUID::from_string(const uint8_t *str) {
 #ifdef USE_LIBUUID
-	int rv = uuid_parse ((const char*) str, uuid_);
-	if (rv == -1)
-		return (false);
-	ASSERT("/uuid/libuuid", rv == 0);
+    int rv = uuid_parse((const char *) str, uuid_);
+    if (rv == -1)
+        return (false);
+    ASSERT("/uuid/libuuid", rv == 0);
 #else
-	uint32_t status;
-	uuid_from_string ((const char*) str, &uuid_, &status);
-	if (status != uuid_s_ok)
-		return (false);
+    uint32_t status;
+    uuid_from_string ((const char*) str, &uuid_, &status);
+    if (status != uuid_s_ok)
+        return (false);
 #endif
 
-	return (true);
+    return (true);
 }
 
-bool UUID::to_string (uint8_t* str) const
-{
+bool UUID::to_string(uint8_t *str) const {
 #ifdef USE_LIBUUID
-	uuid_unparse (uuid_, (char*) str);
+    uuid_unparse(uuid_, (char *) str);
 #else
-	char *p;
-	uuid_to_string (&uuid_, &p, NULL);
-	ASSERT("/uuid/libc", p != NULL);
-	strcpy ((char*) str, p);
-	free (p);
+    char *p;
+    uuid_to_string (&uuid_, &p, NULL);
+    ASSERT("/uuid/libc", p != NULL);
+    strcpy ((char*) str, p);
+    free (p);
 #endif
-	return (true);
+    return (true);
 }
 
-bool UUID::from_file (std::string& path)
-{
-	std::fstream file;
-	std::string s;
-	file.open (path.c_str(), std::ios::in);	
-	if (file.good())
-	{
-		file >> s;
-		return from_string ((const uint8_t*) s.c_str());
-	}
-	return false;
+bool UUID::from_file(std::string &path) {
+    std::fstream file;
+    std::string s;
+    file.open(path.c_str(), std::ios::in);
+    if (file.good()) {
+        file >> s;
+        return from_string((const uint8_t *) s.c_str());
+    }
+    return false;
 }
 
-bool UUID::to_file (std::string& path) const
-{
-	std::fstream file;
-	file.open (path.c_str(), std::ios::out);	
-	if (file.good())
-	{
-		uint8_t str[UUID_STRING_SIZE + 1];
-		to_string (str);
-		std::string s ((const char*) str);
-		file << s;
-		return true;
-	}
-	return false;
+bool UUID::to_file(std::string &path) const {
+    std::fstream file;
+    file.open(path.c_str(), std::ios::out);
+    if (file.good()) {
+        uint8_t str[UUID_STRING_SIZE + 1];
+        to_string(str);
+        std::string s((const char *) str);
+        file << s;
+        return true;
+    }
+    return false;
 }
 
-bool UUID::decode (Buffer& buf)
-{
-	if (buf.length() < UUID_STRING_SIZE)
-		return (false);
+bool UUID::decode(Buffer &buf) {
+    if (buf.length() < UUID_STRING_SIZE)
+        return (false);
 
-	uint8_t str[UUID_STRING_SIZE + 1];
-	buf.moveout (str, UUID_STRING_SIZE);
-	str[UUID_STRING_SIZE] = 0;
-	return from_string (str);
+    uint8_t str[UUID_STRING_SIZE + 1];
+    buf.moveout(str, UUID_STRING_SIZE);
+    str[UUID_STRING_SIZE] = 0;
+    return from_string(str);
 }
 
-bool UUID::encode (Buffer& buf) const
-{
-	uint8_t str[UUID_STRING_SIZE + 1];
-	to_string (str);
-	buf.append (str, UUID_STRING_SIZE);
-	return (true);
+bool UUID::encode(Buffer &buf) const {
+    uint8_t str[UUID_STRING_SIZE + 1];
+    to_string(str);
+    buf.append(str, UUID_STRING_SIZE);
+    return (true);
 }
 
-void UUID::generate(void)
-{
+void UUID::generate(void) {
 #ifdef USE_LIBUUID
-	uuid_generate (uuid_);
+    uuid_generate(uuid_);
 #else
-	uuid_create (&uuid_, NULL);
+    uuid_create (&uuid_, NULL);
 #endif
 }
 
-std::ostream& operator<< (std::ostream& os, const UUID& uuid)
-{
-	uint8_t str[UUID_STRING_SIZE + 1]; 
-	uuid.to_string (str);
-	return os << str;
+std::ostream &operator<<(std::ostream &os, const UUID &uuid) {
+    uint8_t str[UUID_STRING_SIZE + 1];
+    uuid.to_string(str);
+    return os << str;
 }
