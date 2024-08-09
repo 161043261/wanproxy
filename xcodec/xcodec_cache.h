@@ -28,6 +28,7 @@
 
 #include <ext/hash_map>
 #include <map>
+#include <cstdint>
 
 #include "../common/buffer.h"
 #include "../common/uuid/uuid.h"

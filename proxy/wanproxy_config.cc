@@ -51,9 +51,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-WANProxyConfig::WANProxyConfig(void)
-        : log_("/wanproxy/config"),
-          config_(NULL) {}
+WANProxyConfig::WANProxyConfig(void) : log_("/wanproxy/config"), config_(NULL) {}
 
 WANProxyConfig::~WANProxyConfig() {
     delete config_;

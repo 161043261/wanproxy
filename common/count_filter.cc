@@ -10,9 +10,9 @@
 
 #include <map>
 #include <vector>
-#include <common/buffer.h>
-#include <http/http_protocol.h>
-#include "count_filter.h"
+#include "./buffer.h"
+#include "../http/http_protocol.h"
+#include "./count_filter.h"
 
 CountFilter::CountFilter(intmax_t &p, int flg) : total_count_(p) {
     expected_ = count_ = 0;

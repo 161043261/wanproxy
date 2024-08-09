@@ -27,10 +27,11 @@
 #define    COMMON_BUFFER_H
 
 #include <string.h> /* memmove(3), memcpy(3), etc.  */
-
+#include <cstdint>
 #include <deque>
 #include <vector>
 #include "./thread/atomic.h"
+#include "./debug.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //

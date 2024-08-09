@@ -28,7 +28,7 @@
 
 #include <string.h>
 #include <ostream>
-#include <common/buffer.h>
+#include "../buffer.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
