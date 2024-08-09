@@ -71,9 +71,9 @@ struct iovec;
  * likely than trim().
  */
 
-#define    BUFFER_SEGMENT_SIZE        (2048)
+#define    BUFFER_SEGMENT_SIZE           (2048)
 #define    BUFFER_SEGMENT_CACHE_LIMIT    ((1024 * 1024) / BUFFER_SEGMENT_SIZE)
-#define    USING_SEGMENT_CACHE        0
+#define    USING_SEGMENT_CACHE           0
 
 #if USING_SEGMENT_CACHE
 #include <pthread.h>

@@ -23,14 +23,14 @@
  * SUCH DAMAGE.
  */
 
-#include <common/buffer.h>
-#include <common/endian.h>
+#include "../common/buffer.h"
+#include "../common/endian.h"
 
-#include <xcodec/xcodec.h>
-#include <xcodec/xcodec_cache.h>
-#include <xcodec/xcodec_decoder.h>
-#include <xcodec/xcodec_encoder.h>
-#include <xcodec/xcodec_hash.h>
+#include "./xcodec.h"
+#include "./xcodec_cache.h"
+#include "./xcodec_decoder.h"
+#include "./xcodec_encoder.h"
+#include "./xcodec_hash.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -42,13 +42,11 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-XCodecDecoder::XCodecDecoder(XCodecCache* cache)
-: log_("/xcodec/decoder"),
-  cache_(cache)
-{ }
+XCodecDecoder::XCodecDecoder(XCodecCache *cache)
+        : log_("/xcodec/decoder"),
+          cache_(cache) {}
 
-XCodecDecoder::~XCodecDecoder()
-{ }
+XCodecDecoder::~XCodecDecoder() {}
 
 /*
  * XXX These comments are out-of-date.
@@ -73,104 +71,88 @@ XCodecDecoder::~XCodecDecoder()
  * share an originator.
  */
 
-bool XCodecDecoder::decode (Buffer& output, Buffer& input, std::set<uint64_t>& unknown_hashes)
-{
-	uint8_t data[XCODEC_SEGMENT_LENGTH];
-	Buffer old;
-	uint64_t behash;
-	uint64_t hash;
-	unsigned off;
-	uint8_t op;
-	
-	while (! input.empty()) 
-	{
-		if (! input.find (XCODEC_MAGIC, &off)) 
-		{
-			input.moveout (&output);
-			break;
-		}
+bool XCodecDecoder::decode(Buffer &output, Buffer &input, std::set<uint64_t> &unknown_hashes) {
+    uint8_t data[XCODEC_SEGMENT_LENGTH];
+    Buffer old;
+    uint64_t behash;
+    uint64_t hash;
+    unsigned off;
+    uint8_t op;
 
-		if (off > 0) 
-		{
-			output.append (input, off);
-			input.skip (off);
-		}
-		ASSERT(log_, !input.empty());
+    while (!input.empty()) {
+        if (!input.find(XCODEC_MAGIC, &off)) {
+            input.moveout(&output);
+            break;
+        }
 
-		/*
-		 * Need the following byte at least.
-		 */
-		if (input.length() == 1)
-			break;
+        if (off > 0) {
+            output.append(input, off);
+            input.skip(off);
+        }
+        ASSERT(log_, !input.empty());
 
-		input.extract (&op, sizeof XCODEC_MAGIC);
+        /*
+         * Need the following byte at least.
+         */
+        if (input.length() == 1)
+            break;
 
-		switch (op) 
-		{
-		case XCODEC_OP_ESCAPE:
-			output.append (XCODEC_MAGIC);
-			input.skip (sizeof XCODEC_MAGIC + sizeof op);
-			break;
-			
-		case XCODEC_OP_EXTRACT:
-			if (input.length() < sizeof XCODEC_MAGIC + sizeof op + XCODEC_SEGMENT_LENGTH)
-				return (true);
-				
-			input.skip (sizeof XCODEC_MAGIC + sizeof op);
-			input.copyout (data, XCODEC_SEGMENT_LENGTH);
-			hash = XCodecHash::hash (data);
-			
-			if (cache_->lookup (hash, old))
-			{
-				if (old.equal (data, sizeof data))
-				{
-					DEBUG(log_) << "Declaring segment already in cache.";
-				}
-				else
-				{
-					ERROR(log_) << "Collision in <EXTRACT>.";
-					return (false);
-				}
-				old.clear ();
-			} 
-			else
-				cache_->enter (hash, input, 0);
+        input.extract(&op, sizeof(XCODEC_MAGIC));
 
-			output.append (input, XCODEC_SEGMENT_LENGTH);
-			input.skip (XCODEC_SEGMENT_LENGTH);
-			break;
-			
-		case XCODEC_OP_REF:
-			if (input.length() < sizeof XCODEC_MAGIC + sizeof op + sizeof behash)
-				return (true);
-				
-			input.extract (&behash, sizeof XCODEC_MAGIC + sizeof op);
-			hash = BigEndian::decode (behash);
+        switch (op) {
+            case XCODEC_OP_ESCAPE:
+                output.append(XCODEC_MAGIC);
+                input.skip(sizeof(XCODEC_MAGIC) + sizeof op);
+                break;
 
-			if (cache_->lookup (hash, output))
-			{
-				input.skip (sizeof XCODEC_MAGIC + sizeof op + sizeof behash);
-			}
-			else
-			{
-				if (unknown_hashes.find (hash) == unknown_hashes.end()) 
-				{
-					DEBUG(log_) << "Sending <ASK>, waiting for <LEARN>.";
-					unknown_hashes.insert (hash);
-				} 
-				else 
-				{
-					DEBUG(log_) << "Already sent <ASK>, waiting for <LEARN>.";
-				}
-				return (true);
-			}
-			break;
-			
-		default:
-			ERROR(log_) << "Unsupported XCodec opcode " << (unsigned)op << ".";
-			return (false);
-		}
-	}
-	
-	return (true);
+            case XCODEC_OP_EXTRACT:
+                if (input.length() < sizeof(XCODEC_MAGIC) + sizeof op + XCODEC_SEGMENT_LENGTH)
+                    return (true);
+
+                input.skip(sizeof(XCODEC_MAGIC) + sizeof op);
+                input.copyout(data, XCODEC_SEGMENT_LENGTH);
+                hash = XCodecHash::hash(data);
+
+                if (cache_->lookup(hash, old)) {
+                    if (old.equal(data, sizeof data)) {
+                        DEBUG(log_) << "Declaring segment already in cache.";
+                    } else {
+                        ERROR(log_) << "Collision in <EXTRACT>.";
+                        return (false);
+                    }
+                    old.clear();
+                } else
+                    cache_->enter(hash, input, 0);
+
+                output.append(input, XCODEC_SEGMENT_LENGTH);
+                input.skip(XCODEC_SEGMENT_LENGTH);
+                break;
+
+            case XCODEC_OP_REF:
+                if (input.length() < sizeof(XCODEC_MAGIC) + sizeof op + sizeof behash)
+                    return (true);
+
+                input.extract(&behash, sizeof(XCODEC_MAGIC) + sizeof op);
+                hash = BigEndian::decode(behash);
+
+                if (cache_->lookup(hash, output)) {
+                    input.skip(sizeof(XCODEC_MAGIC) + sizeof op + sizeof behash);
+                } else {
+                    if (unknown_hashes.find(hash) == unknown_hashes.end()) {
+                        DEBUG(log_) << "Sending <ASK>, waiting for <LEARN>.";
+                        unknown_hashes.insert(hash);
+                    } else {
+                        DEBUG(log_) << "Already sent <ASK>, waiting for <LEARN>.";
+                    }
+                    return (true);
+                }
+                break;
+
+            default:
+                ERROR(log_) << "Unsupported XCodec opcode " << (unsigned) op << ".";
+                return (false);
+        }
+    }
+
+    return (true);
 }

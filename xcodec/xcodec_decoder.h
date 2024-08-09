@@ -23,8 +23,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef	XCODEC_XCODEC_DECODER_H
-#define	XCODEC_XCODEC_DECODER_H
+#ifndef    XCODEC_XCODEC_DECODER_H
+#define    XCODEC_XCODEC_DECODER_H
 
 #include <set>
 
@@ -41,14 +41,15 @@
 class XCodecCache;
 
 class XCodecDecoder {
-	LogHandle log_;
-	XCodecCache* cache_;
+    LogHandle log_;
+    XCodecCache *cache_;
 
 public:
-	XCodecDecoder(XCodecCache*);
-	~XCodecDecoder();
+    XCodecDecoder(XCodecCache *);
 
-	bool decode (Buffer&, Buffer&, std::set<uint64_t>&);
+    ~XCodecDecoder();
+
+    bool decode(Buffer &, Buffer &, std::set<uint64_t> &);
 };
 
 #endif /* !XCODEC_XCODEC_DECODER_H */

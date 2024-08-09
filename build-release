@@ -1,4 +1,0 @@
- cd proxy
-mkdir -p bin
-make NDEBUG=1
-
